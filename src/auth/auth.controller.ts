@@ -29,7 +29,16 @@ export class AuthController {
     this.authService.setRefreshTokenCookie(res, refreshToken);
 
     return res.json({
-      user,
+      user: {
+        _id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        userType: user.userType,
+        status: user.status,
+      },
       accessToken,
     });
   }
@@ -40,6 +49,8 @@ export class AuthController {
     @Body('password') password: string,
     @Res() res: Response,
   ) {
+    console.log('identifier', identifier);
+    console.log('password', password);
     try {
       const { user, accessToken } = await this.authService.login(
         identifier,
@@ -57,6 +68,8 @@ export class AuthController {
           email: user.email,
           phone: user.phone,
           role: user.role,
+          userType: user.userType,
+          status: user.status,
         },
         accessToken,
       });
@@ -113,5 +126,28 @@ export class AuthController {
   ) {
     await this.authService.resetPassword(user.uid, newPassword);
     return { message: 'Password reset successfully' };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('logout')
+  async logout(
+    @AuthUser() user: IAuthUser,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (token) {
+      await this.authService.logout(user.uid, token);
+    }
+
+    // Clear the refresh token cookie
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/api/auth/refresh-token',
+    });
+
+    return res.json({ message: 'Logged out successfully' });
   }
 }

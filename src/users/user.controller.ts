@@ -13,4 +13,10 @@ export class UserController {
   async loggedInUser(@AuthUser() user: JwtPayload) {
     return await this.usersService.findById(user.uid);
   }
+
+  @Get('all')
+  @UseGuards(JwtAuthGuard)
+  async allUsers() {
+    return await this.usersService.findAll();
+  }
 }

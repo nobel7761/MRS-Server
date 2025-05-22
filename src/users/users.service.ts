@@ -58,7 +58,14 @@ export class UsersService {
     return this.userModel.findById(id).exec();
   }
 
-  async updateRefreshToken(id: string, refreshToken: string): Promise<void> {
+  async findAll(): Promise<User[]> {
+    return this.userModel.find().exec();
+  }
+
+  async updateRefreshToken(
+    id: string,
+    refreshToken: string | null,
+  ): Promise<void> {
     await this.userModel.findByIdAndUpdate(id, { refreshToken }).exec();
   }
 

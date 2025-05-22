@@ -10,8 +10,11 @@ import { User } from '../users/users.model';
 import { UserRegistrationDto } from './auth.dto';
 import { UserRole, UserType } from '../enums/users/users.enum';
 import { comparePassword } from '../utils/password.util';
+
 @Injectable()
 export class AuthService {
+  private tokenBlacklist: Set<string> = new Set();
+
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
@@ -73,6 +76,18 @@ export class AuthService {
     return { user, accessToken };
   }
 
+  async logout(userId: string, accessToken: string): Promise<void> {
+    // Add the access token to the blacklist
+    this.tokenBlacklist.add(accessToken);
+
+    // Clear the refresh token from the user document
+    await this.usersService.updateRefreshToken(userId, null);
+  }
+
+  isTokenBlacklisted(token: string): boolean {
+    return this.tokenBlacklist.has(token);
+  }
+
   async validateUser(
     identifier: string,
     password: string,
@@ -83,11 +98,13 @@ export class AuthService {
         (await this.usersService.findByPhone(identifier));
 
       if (!user) {
+        console.log('User not found');
         return null;
       }
 
-      const isPasswordValid = comparePassword(user.password, password);
+      const isPasswordValid = await comparePassword(user.password, password);
       if (!isPasswordValid) {
+        console.log('Invalid password');
         return null;
       }
 
@@ -102,13 +119,27 @@ export class AuthService {
     userId: string,
     refreshToken: string,
   ): Promise<{ accessToken: string }> {
-    const user = await this.usersService.findById(userId);
-    if (!user || user.refreshToken !== refreshToken) {
+    try {
+      // Verify the refresh token
+      const payload = this.jwtService.verify(refreshToken, {
+        secret: process.env.JWT_REFRESH_SECRET,
+      });
+
+      if (payload.sub !== userId) {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+
+      const user = await this.usersService.findById(userId);
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+
+      // Generate new access token
+      const accessToken = this.generateAccessToken(user);
+      return { accessToken };
+    } catch (error) {
       throw new UnauthorizedException('Invalid refresh token');
     }
-
-    const accessToken = this.generateAccessToken(user);
-    return { accessToken };
   }
 
   async changePassword(
@@ -136,20 +167,29 @@ export class AuthService {
       userType: user.userType,
       status: user.status,
     };
-    return this.jwtService.sign(payload);
+    return this.jwtService.sign(payload, {
+      secret: process.env.JWT_ACCESS_SECRET,
+      expiresIn: '15m', // Short-lived access token
+    });
   }
 
   generateRefreshToken(user: User): string {
-    const payload = { sub: user._id };
-    return this.jwtService.sign(payload, { expiresIn: '7d' });
+    const payload = {
+      sub: user._id,
+    };
+    return this.jwtService.sign(payload, {
+      secret: process.env.JWT_REFRESH_SECRET,
+      expiresIn: '7d', // Longer-lived refresh token
+    });
   }
 
   setRefreshTokenCookie(res: Response, refreshToken: string): void {
     res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      httpOnly: true, // Prevents JavaScript access
+      secure: process.env.NODE_ENV === 'production', // Only sent over HTTPS in production
+      sameSite: 'strict', // Prevents CSRF attacks
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/api/auth/refresh-token', // Only sent to refresh token endpoint
     });
   }
 }
