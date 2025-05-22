@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import configuration from './config/configuration';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
+import { RepresentativeCollectionModule } from './representative-collection/representative-collection.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { AppController } from './app.controller';
     MongooseModule.forRoot(process.env.MONGO_URI as string),
     UsersModule,
     AuthModule,
+    RepresentativeCollectionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

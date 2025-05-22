@@ -49,8 +49,8 @@ export class AuthController {
     @Body('password') password: string,
     @Res() res: Response,
   ) {
-    console.log('identifier', identifier);
-    console.log('password', password);
+    // console.log('identifier', identifier);
+    // console.log('password', password);
     try {
       const { user, accessToken } = await this.authService.login(
         identifier,
