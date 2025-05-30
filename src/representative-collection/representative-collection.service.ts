@@ -33,7 +33,10 @@ export class RepresentativeCollectionService {
   }
 
   async findAll(): Promise<RepresentativeCollection[]> {
-    return this.representativeCollectionModel.find().exec();
+    return this.representativeCollectionModel
+      .find()
+      .sort({ createdAt: 1 })
+      .exec();
   }
 
   async findOne(id: string): Promise<RepresentativeCollection> {
