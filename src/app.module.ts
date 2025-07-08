@@ -7,6 +7,8 @@ import configuration from './config/configuration';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
 import { RepresentativeCollectionModule } from './representative-collection/representative-collection.module';
+import { FaqsCategoryModule } from './faqs-category/faqs-category.module';
+import { FaqsModule } from './faqs/faqs.module';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { RepresentativeCollectionModule } from './representative-collection/repr
     UsersModule,
     AuthModule,
     RepresentativeCollectionModule,
+    FaqsCategoryModule,
+    FaqsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
