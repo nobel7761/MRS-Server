@@ -11,19 +11,19 @@ import {
 export class User extends Document {
   @Prop({
     required: true,
-    validate: {
-      validator: (value: string) => /^[a-zA-Z\s]*$/.test(value),
-      message: 'First name can only contain letters and spaces',
-    },
+    // validate: {
+    //   validator: (value: string) => /^[a-zA-Z\s]*$/.test(value),
+    //   message: 'First name can only contain letters and spaces',
+    // },
   })
   firstName: string;
 
   @Prop({
     required: true,
-    validate: {
-      validator: (value: string) => /^[a-zA-Z\s]*$/.test(value),
-      message: 'Last name can only contain letters and spaces',
-    },
+    // validate: {
+    //   validator: (value: string) => /^[a-zA-Z\s]*$/.test(value),
+    //   message: 'Last name can only contain letters and spaces',
+    // },
   })
   lastName: string;
 
