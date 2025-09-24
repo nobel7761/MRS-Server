@@ -8,7 +8,7 @@ import { UsersService } from '../users/users.service';
 import { Response } from 'express';
 import { User } from '../users/users.model';
 import { UserRegistrationDto } from './auth.dto';
-import { UserRole, UserType } from '../enums/users/users.enum';
+import { UserRole } from '../enums/users/users.enum';
 import { comparePassword } from '../utils/password.util';
 
 @Injectable()
@@ -25,29 +25,11 @@ export class AuthService {
   ): Promise<{ user: User; accessToken: string }> {
     const isUserExists = await this.usersService.isUserExists(
       createUserDto?.email || '',
-      createUserDto.phone,
+      createUserDto.phoneNumber,
     );
 
     if (isUserExists) {
       throw new BadRequestException('User already exists');
-    }
-
-    // Check if SUPER_ADMIN must be OWNER type
-    if (createUserDto.role === UserRole.SUPER_ADMIN) {
-      if (createUserDto.userType !== UserType.OWNER) {
-        throw new BadRequestException(
-          'Super admin users must have Owner user type',
-        );
-      }
-    }
-
-    // Check if ADMIN cannot be EMPLOYEE type
-    if (createUserDto.role === UserRole.ADMIN) {
-      if (createUserDto.userType === UserType.EMPLOYEE) {
-        throw new BadRequestException(
-          'Admin users cannot have Employee user type',
-        );
-      }
     }
 
     const user = await this.usersService.create(createUserDto);
@@ -98,13 +80,13 @@ export class AuthService {
         (await this.usersService.findByPhone(identifier));
 
       if (!user) {
-        console.log('User not found');
+        // console.log('User not found');
         return null;
       }
 
       const isPasswordValid = await comparePassword(user.password, password);
       if (!isPasswordValid) {
-        console.log('Invalid password');
+        // console.log('Invalid password');
         return null;
       }
 
@@ -164,7 +146,6 @@ export class AuthService {
       sub: user._id,
       email: user.email,
       role: user.role,
-      userType: user.userType,
       status: user.status,
     };
     return this.jwtService.sign(payload, {

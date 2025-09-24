@@ -1,7 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import * as bcrypt from 'bcrypt';
-import { UserStatus, UserType, UserRole } from '../enums/users/users.enum';
+import {
+  UserStatus,
+  UserRole,
+  MembershipCategory,
+} from '../enums/users/users.enum';
 
 @Schema({ timestamps: true })
 export class User extends Document {
@@ -26,10 +30,6 @@ export class User extends Document {
   @Prop({
     required: true,
     unique: true,
-    validate: {
-      validator: (value: string) => /^(\+88)?01[3-9]\d{8}$/.test(value),
-      message: 'Please provide a valid Bangladeshi phone number',
-    },
   })
   phone: string;
 
@@ -66,12 +66,12 @@ export class User extends Document {
   })
   status: UserStatus;
 
-  @Prop({
-    type: String,
-    enum: UserType,
-    default: UserType.EMPLOYEE,
-  })
-  userType: UserType;
+  // @Prop({
+  //   type: String,
+  //   enum: UserType,
+  //   default: UserType.EMPLOYEE,
+  // })
+  // userType: UserType;
 
   @Prop({
     type: String,
@@ -79,6 +79,13 @@ export class User extends Document {
     default: UserRole.USER,
   })
   role: UserRole;
+
+  @Prop({
+    type: String,
+    enum: MembershipCategory,
+    default: MembershipCategory.FREE,
+  })
+  membershipCategory: MembershipCategory;
 
   // select: false means this field won't be returned in queries by default
   // This is a security measure to prevent the refresh token from being exposed

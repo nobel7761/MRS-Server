@@ -4,15 +4,19 @@ export enum UserStatus {
 }
 
 export enum UserType {
-  MARKETING = 'MARKETING',
-  HR = 'HR',
-  OPERATIONS = 'OPERATIONS',
-  EMPLOYEE = 'EMPLOYEE',
-  OWNER = 'OWNER',
+  ADMIN = 'ADMIN',
+  MODERATOR = 'MODERATOR',
+  USER = 'USER',
 }
 
 export enum UserRole {
   SUPER_ADMIN = 'SUPER_ADMIN',
   ADMIN = 'ADMIN',
   USER = 'USER',
+}
+
+export enum MembershipCategory {
+  FREE = 'FREE',
+  YEARLY = 'YEARLY',
+  PERMANENT = 'PERMANENT',
 }

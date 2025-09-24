@@ -57,8 +57,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
       if (errors?.validationErrors) {
         message = '';
-        Object.keys(errors?.validationErrors)?.forEach(key => {
-          console.log(errors?.validationErrors?.[key]);
+        Object.keys(errors?.validationErrors)?.forEach((key) => {
+          // console.log(errors?.validationErrors?.[key]);
           if (Array.isArray(errors?.validationErrors?.[key])) {
             message += `${key} - ${errors?.validationErrors?.[key]?.join(',')}`;
             //TODO: NEED TO WORK ON NESTED ERRORS
@@ -75,7 +75,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
             //   )}`;
             // }
           } else {
-            Object.keys(errors?.validationErrors?.[key])?.forEach(key2 => {
+            Object.keys(errors?.validationErrors?.[key])?.forEach((key2) => {
               if (Array.isArray(errors?.validationErrors?.[key]?.[key2])) {
                 message += `${key2} - ${errors?.validationErrors?.[key]?.[
                   key2
@@ -83,7 +83,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
               }
             });
           }
-          console.log(message);
+          // console.log(message);
         });
         if (message == '') {
           message = 'Internal Server Error';

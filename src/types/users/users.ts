@@ -1,3 +1,3 @@
-import { JwtPayload } from 'src/auth/jwt-payload';
+import { JwtPayload } from '../../auth/jwt-payload';
 
 export interface IAuthUser extends JwtPayload {}

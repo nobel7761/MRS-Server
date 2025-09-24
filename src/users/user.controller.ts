@@ -1,8 +1,8 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { AuthUser } from 'src/auth/decorators/auth-user.decorator';
-import { JwtPayload } from 'src/auth/jwt-payload';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { AuthUser } from '../auth/decorators/auth-user.decorator';
+import { JwtPayload } from '../auth/jwt-payload';
 
 @Controller('user')
 export class UserController {
@@ -15,7 +15,7 @@ export class UserController {
   }
 
   @Get('all')
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   async allUsers() {
     return await this.usersService.findAll();
   }

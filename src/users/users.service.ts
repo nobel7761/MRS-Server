@@ -2,8 +2,8 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './users.model';
-import { UserStatus, UserType } from '../enums/users/users.enum';
-import { UserRegistrationDto } from 'src/auth/auth.dto';
+import { UserStatus } from '../enums/users/users.enum';
+import { UserRegistrationDto } from '../auth/auth.dto';
 @Injectable()
 export class UsersService {
   constructor(
@@ -11,7 +11,7 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: UserRegistrationDto): Promise<User> {
-    if (!createUserDto.phone) {
+    if (!createUserDto.phoneNumber) {
       throw new BadRequestException('Phone is required');
     }
 
@@ -19,14 +19,21 @@ export class UsersService {
       throw new BadRequestException('Password is required');
     }
 
-    const query: any = { phone: createUserDto.phone };
+    // Transform phoneNumber to phone for database storage
+    const userData: any = {
+      ...createUserDto,
+      phone: createUserDto.phoneNumber,
+    };
+    delete userData.phoneNumber;
+
+    const query: any = { phone: createUserDto.phoneNumber };
     if (createUserDto.email) {
       query.email = createUserDto.email;
     }
 
     const isUserExists = await this.userModel.findOne({
       $or: [
-        { phone: createUserDto.phone },
+        { phone: createUserDto.phoneNumber },
         ...(createUserDto.email ? [{ email: createUserDto.email }] : []),
       ],
     });
@@ -35,7 +42,7 @@ export class UsersService {
       throw new BadRequestException('User already exists');
     }
 
-    const createdUser = new this.userModel(createUserDto);
+    const createdUser = new this.userModel(userData);
     return createdUser.save();
   }
 

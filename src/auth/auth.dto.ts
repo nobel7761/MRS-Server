@@ -5,7 +5,7 @@ import {
   Matches,
   IsEnum,
 } from 'class-validator';
-import { UserRole, UserType } from '../enums/users/users.enum';
+import { UserRole, MembershipCategory } from '../enums/users/users.enum';
 
 export class UserRegistrationDto {
   @IsString()
@@ -13,7 +13,7 @@ export class UserRegistrationDto {
   @Matches(/^(\+88)?01[3-9]\d{8}$/, {
     message: 'Please provide a valid Bangladeshi phone number',
   })
-  phone: string;
+  phoneNumber: string;
 
   @IsString()
   @IsNotEmpty()
@@ -46,8 +46,8 @@ export class UserRegistrationDto {
   role?: UserRole;
 
   @IsOptional()
-  @IsEnum(UserType)
-  userType?: UserType;
+  @IsEnum(MembershipCategory)
+  membershipCategory?: MembershipCategory;
 }
 
 export class UserLoginDto {

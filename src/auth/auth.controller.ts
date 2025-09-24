@@ -22,6 +22,7 @@ export class AuthController {
     @Body() createUserDto: UserRegistrationDto,
     @Res() res: Response,
   ) {
+    // console.log('createUserDto', createUserDto);
     const { user, accessToken } =
       await this.authService.register(createUserDto);
     const refreshToken = await this.authService.generateRefreshToken(user);
@@ -36,8 +37,8 @@ export class AuthController {
         email: user.email,
         phone: user.phone,
         role: user.role,
-        userType: user.userType,
         status: user.status,
+        membershipCategory: user.membershipCategory,
       },
       accessToken,
     });
@@ -49,8 +50,8 @@ export class AuthController {
     @Body('password') password: string,
     @Res() res: Response,
   ) {
-    console.log('identifier', identifier);
-    console.log('password', password);
+    // console.log('identifier', identifier);
+    // console.log('password', password);
     try {
       const { user, accessToken } = await this.authService.login(
         identifier,
@@ -68,8 +69,8 @@ export class AuthController {
           email: user.email,
           phone: user.phone,
           role: user.role,
-          userType: user.userType,
           status: user.status,
+          membershipCategory: user.membershipCategory,
         },
         accessToken,
       });
