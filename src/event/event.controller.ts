@@ -39,7 +39,6 @@ export class EventController {
     @Body() createEventDto: CreateEventDto,
     @Request() req: any,
   ): Promise<EventResponseDto> {
-    console.log('here', createEventDto);
     return this.eventService.create(createEventDto);
   }
 

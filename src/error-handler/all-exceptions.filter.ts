@@ -58,7 +58,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
       if (errors?.validationErrors) {
         message = '';
         Object.keys(errors?.validationErrors)?.forEach((key) => {
-          // console.log(errors?.validationErrors?.[key]);
           if (Array.isArray(errors?.validationErrors?.[key])) {
             message += `${key} - ${errors?.validationErrors?.[key]?.join(',')}`;
             //TODO: NEED TO WORK ON NESTED ERRORS
@@ -83,7 +82,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
               }
             });
           }
-          // console.log(message);
         });
         if (message == '') {
           message = 'Internal Server Error';
@@ -101,9 +99,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
       errorName,
     };
 
-    console.log('Global error handler : 😎', responseBody);
-    console.log('full exception: ', exception);
-    console.log('JSON formatted: ', JSON.stringify(exception));
     httpAdapter.reply(ctx.getResponse(), responseBody, httpStatus);
   }
 }

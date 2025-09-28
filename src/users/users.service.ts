@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { User } from './users.model';
 import { UserStatus } from '../enums/users/users.enum';
 import { UserRegistrationDto } from '../auth/auth.dto';
+import { JwtPayload } from 'src/auth/jwt-payload';
 @Injectable()
 export class UsersService {
   constructor(
@@ -65,8 +66,21 @@ export class UsersService {
     return this.userModel.findById(id).exec();
   }
 
-  async findAll(): Promise<User[]> {
-    return this.userModel.find().exec();
+  async findAll(user: JwtPayload): Promise<User[]> {
+    // If logged in user is not owner, return all users except owners
+    if (user.userType !== 'OWNER') {
+      const result = await this.userModel
+        .find({ userType: { $ne: 'OWNER' } })
+        .exec();
+
+      return result;
+    }
+
+    // If logged in user is owner, return all users
+
+    const result = await this.userModel.find().exec();
+
+    return result;
   }
 
   async updateRefreshToken(

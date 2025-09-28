@@ -56,7 +56,18 @@ import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  app.enableCors();
+
+  // Enable CORS with specific configuration
+  app.enableCors({
+    origin: true, // Accept all origins (equivalent to '*' but works with credentials)
+    credentials: true, // Allow credentials (cookies, authorization headers)
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  });
+
+  // Enable cookie parsing middleware
+  app.use(cookieParser());
+
   app.useGlobalPipes(new ValidationPipe());
   app.setGlobalPrefix('api');
 

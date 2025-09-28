@@ -66,7 +66,6 @@ export class EmailController {
   async sendTestEmail(
     @Body() testEmailDto: TestEmailDto,
   ): Promise<{ success: boolean; message: string }> {
-    // console.log(testEmailDto);
     try {
       const result = await this.emailService.sendTestEmail(
         testEmailDto.toEmail,

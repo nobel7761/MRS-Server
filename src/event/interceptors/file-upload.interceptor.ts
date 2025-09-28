@@ -19,11 +19,6 @@ export class FileUploadInterceptor implements NestInterceptor {
     const request = context.switchToHttp().getRequest();
     const file = request.file;
 
-    // Debug logging
-    // console.log('File upload interceptor - request.file:', file);
-    // console.log('File upload interceptor - request.files:', request.files);
-    // console.log('File upload interceptor - request.body:', request.body);
-
     if (!file) {
       throw new BadRequestException('No file uploaded');
     }

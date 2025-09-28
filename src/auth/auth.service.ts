@@ -80,13 +80,11 @@ export class AuthService {
         (await this.usersService.findByPhone(identifier));
 
       if (!user) {
-        // console.log('User not found');
         return null;
       }
 
       const isPasswordValid = await comparePassword(user.password, password);
       if (!isPasswordValid) {
-        // console.log('Invalid password');
         return null;
       }
 
@@ -147,11 +145,17 @@ export class AuthService {
       email: user.email,
       role: user.role,
       status: user.status,
+      userType: user.userType,
+      firstName: user.firstName,
+      lastName: user.lastName,
     };
-    return this.jwtService.sign(payload, {
+
+    const token = this.jwtService.sign(payload, {
       secret: process.env.JWT_ACCESS_SECRET,
       expiresIn: '15m', // Short-lived access token
     });
+
+    return token;
   }
 
   generateRefreshToken(user: User): string {

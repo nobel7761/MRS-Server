@@ -21,6 +21,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (user.status !== 'ACTIVE') {
       throw new UnauthorizedException('User is not active');
     }
+
     return user;
   }
 }
