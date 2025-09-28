@@ -4,9 +4,9 @@ export enum UserStatus {
 }
 
 export enum UserType {
-  ADMIN = 'ADMIN',
-  MODERATOR = 'MODERATOR',
-  USER = 'USER',
+  COLLECTOR = 'COLLECTOR',
+  OWNER = 'OWNER',
+  VISITOR = 'VISITOR',
 }
 
 export enum UserRole {

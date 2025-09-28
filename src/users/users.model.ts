@@ -5,6 +5,7 @@ import {
   UserStatus,
   UserRole,
   MembershipCategory,
+  UserType,
 } from '../enums/users/users.enum';
 
 @Schema({ timestamps: true })
@@ -66,12 +67,12 @@ export class User extends Document {
   })
   status: UserStatus;
 
-  // @Prop({
-  //   type: String,
-  //   enum: UserType,
-  //   default: UserType.EMPLOYEE,
-  // })
-  // userType: UserType;
+  @Prop({
+    type: String,
+    enum: UserType,
+    default: UserType.VISITOR,
+  })
+  userType: UserType;
 
   @Prop({
     type: String,
