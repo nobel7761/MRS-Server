@@ -59,10 +59,22 @@ async function bootstrap() {
 
   // Enable CORS with specific configuration
   app.enableCors({
-    origin: true, // Accept all origins (equivalent to '*' but works with credentials)
+    origin: [
+      'http://localhost:3000', // Development frontend
+      'http://localhost:3001', // Alternative dev port
+      'https://nicaa.vercel.app', // Production frontend
+      'https://nicaa-git-main-nobels-projects.vercel.app', // Vercel preview deployments
+      'https://nicaa-git-develop-nobels-projects.vercel.app', // Vercel preview deployments
+    ],
     credentials: true, // Allow credentials (cookies, authorization headers)
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'Accept',
+      'X-Requested-With',
+    ],
+    optionsSuccessStatus: 200, // For legacy browser support
   });
 
   // Enable cookie parsing middleware
