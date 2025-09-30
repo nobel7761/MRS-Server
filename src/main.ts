@@ -60,11 +60,8 @@ async function bootstrap() {
   // Enable CORS with specific configuration
   app.enableCors({
     origin: [
-      'http://localhost:3000', // Development frontend
-      'http://localhost:3001', // Alternative dev port
-      'https://nicaa.vercel.app', // Production frontend
-      'https://nicaa-git-main-nobels-projects.vercel.app', // Vercel preview deployments
-      'https://nicaa-git-develop-nobels-projects.vercel.app', // Vercel preview deployments
+      'http://localhost:3000', // local frontend
+      'https://nicaa.vercel.app', // production frontend
     ],
     credentials: true, // Allow credentials (cookies, authorization headers)
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
