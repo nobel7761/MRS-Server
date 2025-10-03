@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './users.model';
-import { UserStatus } from '../enums/users/users.enum';
+import { UserStatus, UserType } from '../enums/users/users.enum';
 import { UserRegistrationDto } from '../auth/auth.dto';
 import { JwtPayload } from 'src/auth/jwt-payload';
 @Injectable()
@@ -68,9 +68,9 @@ export class UsersService {
 
   async findAll(user: JwtPayload): Promise<User[]> {
     // If logged in user is not owner, return all users except owners
-    if (user.userType !== 'OWNER') {
+    if (user.userType !== UserType.OWNER) {
       const result = await this.userModel
-        .find({ userType: { $ne: 'OWNER' } })
+        .find({ userType: { $ne: UserType.OWNER } })
         .exec();
 
       return result;

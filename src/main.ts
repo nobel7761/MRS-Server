@@ -53,7 +53,18 @@ import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors();
+
+  // Configure CORS to allow specific origins with credentials
+  app.enableCors({
+    origin: [
+      'http://localhost:3000', // Local development frontend
+      'https://nicaa.vercel.app', // Production frontend
+    ],
+    credentials: true, // Allow cookies and authorization headers
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+  });
+
   app.useGlobalPipes(new ValidationPipe());
   app.setGlobalPrefix('api');
 
