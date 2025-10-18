@@ -11,6 +11,7 @@ import { RepresentativeCollectionModule } from './representative-collection/repr
 import { FaqsCategoryModule } from './faqs-category/faqs-category.module';
 import { FaqsModule } from './faqs/faqs.module';
 import { EventModule } from './event/event.module';
+import { SilverJubileeModule } from './silver-jubilee/silver-jubilee.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { EventModule } from './event/event.module';
     FaqsCategoryModule,
     FaqsModule,
     EventModule,
+    SilverJubileeModule,
   ],
   controllers: [AppController],
   providers: [AppService],

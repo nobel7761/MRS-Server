@@ -17,7 +17,6 @@ export class UserController {
   @Get('all')
   @UseGuards(JwtAuthGuard)
   async allUsers(@AuthUser() user: JwtPayload, @Req() req: any) {
-    console.log('user data', user);
     try {
       const result = await this.usersService.findAll(user);
 
