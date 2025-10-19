@@ -9,6 +9,11 @@ import {
   MaxLength,
   MinLength,
   ValidateIf,
+  IsBoolean,
+  IsObject,
+  IsArray,
+  IsDate,
+  ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import {
@@ -355,6 +360,100 @@ export class SilverJubileeQueryDto {
   sortOrder?: 'asc' | 'desc';
 }
 
+// Email Sending Detail DTO
+export class EmailMetadataDto {
+  @IsString()
+  @IsNotEmpty()
+  subject: string;
+
+  @IsString()
+  @IsNotEmpty()
+  to: string;
+
+  @IsString()
+  @IsNotEmpty()
+  from: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  cc?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  bcc?: string[];
+}
+
+export class SentByDto {
+  @IsOptional()
+  @IsString()
+  userId?: string;
+
+  @IsOptional()
+  @IsString()
+  userName?: string;
+
+  @IsOptional()
+  @IsString()
+  role?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  system?: boolean;
+}
+
+export class EmailSendingDetailDto {
+  @IsString()
+  @IsNotEmpty()
+  emailType: string;
+
+  @IsObject()
+  @ValidateNested()
+  @Type(() => EmailMetadataDto)
+  emailMetadata: EmailMetadataDto;
+
+  @IsString()
+  @IsNotEmpty()
+  emailContent: string;
+
+  @IsDate()
+  @Type(() => Date)
+  sentAt: Date;
+
+  @IsObject()
+  @ValidateNested()
+  @Type(() => SentByDto)
+  sentBy: SentByDto;
+
+  @IsEnum(['success', 'failed', 'pending'])
+  @IsNotEmpty()
+  status: 'success' | 'failed' | 'pending';
+
+  @IsOptional()
+  @IsString()
+  error?: string;
+
+  @IsOptional()
+  @IsString()
+  messageId?: string;
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
+}
+
+// Add Email Sending Detail DTO (for adding a new email record to a participant)
+export class AddEmailSendingDetailDto {
+  @IsString()
+  @IsNotEmpty()
+  participantId: string;
+
+  @ValidateNested()
+  @Type(() => EmailSendingDetailDto)
+  emailDetail: EmailSendingDetailDto;
+}
+
 // Response DTO
 export class SilverJubileeParticipantResponseDto {
   _id: string;
@@ -372,6 +471,9 @@ export class SilverJubileeParticipantResponseDto {
   amountType?: SilverJubileeAmountType;
   amount: number;
   comments?: string;
+  isEmailSent?: boolean;
+  emailSendingDetails?: EmailSendingDetailDto[];
+  registeredBy?: string;
   fatherName?: string;
   fatherPhoneNumber?: string;
   fatherOccupation?: string;

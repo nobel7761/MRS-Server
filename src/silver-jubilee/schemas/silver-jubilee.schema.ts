@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Schema as MongooseSchema } from 'mongoose';
 import {
   SilverJubileeParticipantCategory,
   SilverJubileeGroup,
@@ -8,6 +8,51 @@ import {
   SilverJubileePaymentType,
   SilverJubileeAmountType,
 } from '../enums/silver-jubilee.enum';
+
+// Email Sending Details Schema
+@Schema({ _id: false })
+export class EmailSendingDetail {
+  @Prop({ required: true })
+  emailType: string; // e.g., 'registration', 'reminder', 'update', 'confirmation'
+
+  @Prop({ required: true, type: MongooseSchema.Types.Mixed })
+  emailMetadata: {
+    subject: string;
+    to: string;
+    from: string;
+    cc?: string[];
+    bcc?: string[];
+  };
+
+  @Prop({ required: true })
+  emailContent: string; // Full HTML/text content of the email
+
+  @Prop({ required: true, type: Date })
+  sentAt: Date;
+
+  @Prop({ type: MongooseSchema.Types.Mixed })
+  sentBy: {
+    userId?: string;
+    userName?: string;
+    role?: string;
+    system?: boolean; // true if sent automatically by system
+  };
+
+  @Prop({ required: true, enum: ['success', 'failed', 'pending'] })
+  status: string;
+
+  @Prop()
+  error?: string; // Error message if sending failed
+
+  @Prop()
+  messageId?: string; // Email service provider's message ID
+
+  @Prop()
+  notes?: string; // Any additional notes
+}
+
+export const EmailSendingDetailSchema =
+  SchemaFactory.createForClass(EmailSendingDetail);
 
 export type SilverJubileeParticipantDocument = SilverJubileeParticipant &
   Document & {
@@ -67,6 +112,17 @@ export class SilverJubileeParticipant {
 
   @Prop({ trim: true })
   comments?: string;
+
+  // Email tracking fields
+  @Prop({ default: false })
+  isEmailSent: boolean;
+
+  @Prop({ type: [EmailSendingDetailSchema], default: [] })
+  emailSendingDetails: EmailSendingDetail[];
+
+  // Registration tracking
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User' })
+  registeredBy?: string;
 
   // Parents Information (optional for guests, required for others)
   @Prop({ trim: true })

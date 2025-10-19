@@ -1,10 +1,16 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './users.model';
 import { UserStatus, UserType } from '../enums/users/users.enum';
 import { UserRegistrationDto } from '../auth/auth.dto';
 import { JwtPayload } from 'src/auth/jwt-payload';
+import { UpdateUserDto } from './users.dto';
+import * as bcrypt from 'bcrypt';
 @Injectable()
 export class UsersService {
   constructor(
@@ -96,5 +102,58 @@ export class UsersService {
 
   async updateStatus(id: string, status: UserStatus): Promise<void> {
     await this.userModel.findByIdAndUpdate(id, { status }).exec();
+  }
+
+  async updateUser(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+    const user = await this.userModel.findById(id).exec();
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Check if phone or email already exists for another user
+    if (updateUserDto.phone || updateUserDto.email) {
+      const duplicateCheck: any = { _id: { $ne: id } };
+      const orConditions: any[] = [];
+
+      if (updateUserDto.phone) {
+        orConditions.push({ phone: updateUserDto.phone });
+      }
+      if (updateUserDto.email) {
+        orConditions.push({ email: updateUserDto.email });
+      }
+
+      if (orConditions.length > 0) {
+        duplicateCheck.$or = orConditions;
+        const duplicate = await this.userModel.findOne(duplicateCheck);
+
+        if (duplicate) {
+          throw new BadRequestException('Phone or email already exists');
+        }
+      }
+    }
+
+    // Hash password if it's being updated
+    if (updateUserDto.password) {
+      updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
+    }
+
+    const updatedUser = await this.userModel
+      .findByIdAndUpdate(id, updateUserDto, { new: true })
+      .exec();
+
+    if (!updatedUser) {
+      throw new NotFoundException('User not found');
+    }
+
+    return updatedUser;
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    const result = await this.userModel.findByIdAndDelete(id).exec();
+
+    if (!result) {
+      throw new NotFoundException('User not found');
+    }
   }
 }

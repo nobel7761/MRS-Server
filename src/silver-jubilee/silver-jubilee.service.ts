@@ -13,6 +13,7 @@ import {
   CreateSilverJubileeParticipantDto,
   UpdateSilverJubileeParticipantDto,
 } from './dto/silver-jubilee.dto';
+import { JwtPayload } from 'src/auth/jwt-payload';
 
 @Injectable()
 export class SilverJubileeService {
@@ -21,7 +22,7 @@ export class SilverJubileeService {
     private participantModel: Model<SilverJubileeParticipantDocument>,
   ) {}
 
-  async create(createDto: CreateSilverJubileeParticipantDto) {
+  async create(createDto: CreateSilverJubileeParticipantDto, user: JwtPayload) {
     try {
       // Validate required fields based on participant category
       await this.validateParticipantData(createDto);
@@ -48,11 +49,13 @@ export class SilverJubileeService {
 
       // Generate unique secret code
       const secretCode = await this.generateUniqueSecretCode(createDto);
-
+      console.log('registered by', user);
       const participant = new this.participantModel({
         ...createDto,
         secretCode,
+        registeredBy: user._id,
       });
+      console.log('participant', participant);
       const savedParticipant = await participant.save();
       return savedParticipant;
     } catch (error) {
@@ -263,6 +266,7 @@ export class SilverJubileeService {
       const participants = await this.participantModel
         .find()
         .sort({ createdAt: -1 })
+        .populate('registeredBy', 'firstName lastName email')
         .exec();
 
       // Return array directly

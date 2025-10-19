@@ -9,6 +9,7 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { SilverJubileeService } from './silver-jubilee.service';
 import {
@@ -16,6 +17,9 @@ import {
   UpdateSilverJubileeParticipantDto,
   BatchGroupQueryDto,
 } from './dto/silver-jubilee.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { AuthUser } from '../auth/decorators/auth-user.decorator';
+import { JwtPayload } from '../auth/jwt-payload';
 
 @Controller('silver-jubilee')
 export class SilverJubileeController {
@@ -23,8 +27,12 @@ export class SilverJubileeController {
 
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() createDto: CreateSilverJubileeParticipantDto) {
-    return this.silverJubileeService.create(createDto);
+  @UseGuards(JwtAuthGuard)
+  async create(
+    @Body() createDto: CreateSilverJubileeParticipantDto,
+    @AuthUser() user: JwtPayload,
+  ) {
+    return this.silverJubileeService.create(createDto, user);
   }
 
   @Get()
