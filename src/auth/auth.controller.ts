@@ -70,7 +70,7 @@ export class AuthController {
           role: user.role,
           status: user.status,
           membershipCategory: user.membershipCategory,
-          usetType: user.userType,
+          userType: user.userType,
         },
         accessToken,
       });
