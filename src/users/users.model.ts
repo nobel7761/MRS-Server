@@ -51,7 +51,7 @@ export class User extends Document {
     select: false,
     validate: {
       validator: (value: string) =>
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/.test(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d\s]).{8,16}$/.test(
           value,
         ),
       message:
