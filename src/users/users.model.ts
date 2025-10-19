@@ -94,6 +94,13 @@ export class User extends Document {
 
   @Prop({ select: false })
   refreshToken: string;
+
+  // Password reset token and expiry
+  @Prop({ select: false })
+  passwordResetToken?: string;
+
+  @Prop({ select: false })
+  passwordResetExpires?: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

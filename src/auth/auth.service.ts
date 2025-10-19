@@ -10,6 +10,7 @@ import { User } from '../users/users.model';
 import { UserRegistrationDto } from './auth.dto';
 import { UserRole } from '../enums/users/users.enum';
 import { comparePassword } from '../utils/password.util';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -176,5 +177,92 @@ export class AuthService {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       path: '/api/auth/refresh-token', // Only sent to refresh token endpoint
     });
+  }
+
+  /**
+   * Initiates the password reset process
+   * Generates a secure token and stores it with expiry time
+   * Returns the token (to be sent via email in the controller)
+   * @param identifier - User's email or phone number
+   * @returns Object containing user info and reset token
+   */
+  async forgotPassword(
+    identifier: string,
+  ): Promise<{ user: User; resetToken: string }> {
+    // Find user by email or phone
+    const user =
+      (await this.usersService.findByEmail(identifier)) ||
+      (await this.usersService.findByPhone(identifier));
+
+    if (!user) {
+      // For security, don't reveal if user exists or not
+      throw new BadRequestException(
+        'If an account with that identifier exists, you will receive a password reset email',
+      );
+    }
+
+    // Check if user has an email address
+    if (!user.email) {
+      throw new BadRequestException(
+        'This account does not have an email address. Please contact support.',
+      );
+    }
+
+    // Generate a secure random token (32 bytes = 64 hex characters)
+    const resetToken = crypto.randomBytes(32).toString('hex');
+
+    // Hash the token before storing (adds extra security layer)
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(resetToken)
+      .digest('hex');
+
+    // Set token expiry to 1 hour from now
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+
+    // Store hashed token and expiry in database
+    await this.usersService.setPasswordResetToken(
+      user._id.toString(),
+      hashedToken,
+      expiresAt,
+    );
+
+    // Return the unhashed token (to be sent via email)
+    // and user info (to be used for sending email)
+    return {
+      user,
+      resetToken, // This is the unhashed token that will be sent to user
+    };
+  }
+
+  /**
+   * Resets user's password using the reset token
+   * @param token - Reset token from email
+   * @param newPassword - New password to set
+   */
+  async resetPasswordWithToken(
+    token: string,
+    newPassword: string,
+  ): Promise<void> {
+    // Hash the provided token to match with stored hash
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    // Find user by token and check if it's not expired
+    const user = await this.usersService.findByPasswordResetToken(hashedToken);
+
+    if (!user) {
+      throw new UnauthorizedException(
+        'Password reset token is invalid or has expired',
+      );
+    }
+
+    // Update user's password
+    await this.usersService.updatePassword(user._id.toString(), newPassword);
+
+    // Clear the reset token after successful password reset
+    await this.usersService.clearPasswordResetToken(user._id.toString());
+
+    // Optional: Clear all refresh tokens to log user out of all devices
+    await this.usersService.updateRefreshToken(user._id.toString(), null);
   }
 }

@@ -97,7 +97,14 @@ export class UsersService {
   }
 
   async updatePassword(id: string, password: string): Promise<void> {
-    await this.userModel.findByIdAndUpdate(id, { password }).exec();
+    // Find user and update password, then save to trigger pre-save hook
+    const user = await this.userModel.findById(id).exec();
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    user.password = password;
+    await user.save(); // This triggers the pre-save middleware to hash the password
   }
 
   async updateStatus(id: string, status: UserStatus): Promise<void> {
@@ -155,5 +162,37 @@ export class UsersService {
     if (!result) {
       throw new NotFoundException('User not found');
     }
+  }
+
+  async setPasswordResetToken(
+    userId: string,
+    token: string,
+    expiresAt: Date,
+  ): Promise<void> {
+    await this.userModel
+      .findByIdAndUpdate(userId, {
+        passwordResetToken: token,
+        passwordResetExpires: expiresAt,
+      })
+      .exec();
+  }
+
+  async findByPasswordResetToken(token: string): Promise<User | null> {
+    return this.userModel
+      .findOne({
+        passwordResetToken: token,
+        passwordResetExpires: { $gt: new Date() }, // Token must not be expired
+      })
+      .select('+passwordResetToken +passwordResetExpires')
+      .exec();
+  }
+
+  async clearPasswordResetToken(userId: string): Promise<void> {
+    await this.userModel
+      .findByIdAndUpdate(userId, {
+        passwordResetToken: null,
+        passwordResetExpires: null,
+      })
+      .exec();
   }
 }

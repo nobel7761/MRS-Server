@@ -51,13 +51,13 @@ export class SilverJubileeService {
 
       // Generate unique secret code
       const secretCode = await this.generateUniqueSecretCode(createDto);
-      console.log('registered by', user);
+
       const participant = new this.participantModel({
         ...createDto,
         secretCode,
         registeredBy: user._id,
       });
-      console.log('participant', participant);
+
       const savedParticipant = await participant.save();
       return savedParticipant;
     } catch (error) {
@@ -422,22 +422,57 @@ export class SilverJubileeService {
       let recipientName: string;
 
       if (participant.participantCategory === 'Guest') {
-        if (!participant.email && !participant.guestMobileNumber) {
-          throw new BadRequestException(
-            'Guest participant must have an email or mobile number',
-          );
-        }
-        recipientEmail = (participant.email ||
-          participant.guestMobileNumber) as string;
         recipientName = participant.guestName || 'Guest';
-      } else if (participant.participantCategory === 'Baby') {
-        if (!participant.email && !participant.babyPhone) {
-          throw new BadRequestException(
-            'Baby participant must have an email or phone number',
-          );
+
+        // Try to use guest's own email first
+        if (participant.email) {
+          recipientEmail = participant.email;
+        } else {
+          // If no email, fetch main participant's email
+          if (!participant.mainParticipantId) {
+            throw new BadRequestException(
+              'Guest participant must have either an email or a main participant ID',
+            );
+          }
+
+          const mainParticipant = await this.participantModel
+            .findById(participant.mainParticipantId)
+            .exec();
+
+          if (!mainParticipant || !mainParticipant.email) {
+            throw new BadRequestException(
+              'Main participant not found or does not have an email address',
+            );
+          }
+
+          recipientEmail = mainParticipant.email;
         }
-        recipientEmail = (participant.email || participant.babyPhone) as string;
+      } else if (participant.participantCategory === 'Baby') {
         recipientName = participant.babyName || 'Baby';
+
+        // Try to use baby's own email first
+        if (participant.email) {
+          recipientEmail = participant.email;
+        } else {
+          // If no email, fetch main participant's email
+          if (!participant.mainParticipantId) {
+            throw new BadRequestException(
+              'Baby participant must have either an email or a main participant ID',
+            );
+          }
+
+          const mainParticipant = await this.participantModel
+            .findById(participant.mainParticipantId)
+            .exec();
+
+          if (!mainParticipant || !mainParticipant.email) {
+            throw new BadRequestException(
+              'Main participant not found or does not have an email address',
+            );
+          }
+
+          recipientEmail = mainParticipant.email;
+        }
       } else {
         if (!participant.email) {
           throw new BadRequestException(
@@ -460,25 +495,10 @@ export class SilverJubileeService {
         group: participant.group || participant.mainParticipantGroup,
         currentYear: new Date().getFullYear(),
         recipientEmail: recipientEmail,
-        // Add any additional data needed for the template
-        establishmentYear: 2000, // Adjust as needed
-        registrationLink: 'https://nicaa.org/silver-jubilee/register',
-        scheduleLink: 'https://nicaa.org/silver-jubilee/schedule',
-        contactEmail: 'info@nicaa.org',
-        contactPhone: '+880-XXX-XXXXXX',
-        websiteUrl: 'https://nicaa.org',
-        collegeAddress: 'National Ideal College',
-        collegeCity: 'Dhaka',
-        collegeState: 'Dhaka',
-        collegeZipCode: '1207',
-        facebookUrl: 'https://facebook.com/nicaa',
-        twitterUrl: 'https://twitter.com/nicaa',
-        instagramUrl: 'https://instagram.com/nicaa',
-        linkedinUrl: 'https://linkedin.com/company/nicaa',
       };
 
       // Prepare email subject
-      const emailSubject = `Silver Jubilee Invitation - Your Secret Code: ${participant.secretCode}`;
+      const emailSubject = `🎉 Congratulations! Your Registration for the National Ideal College Silver Jubilee is Confirmed`;
 
       // Send the email
       const emailResult = await this.emailService.sendTestEmail(
@@ -555,7 +575,7 @@ export class SilverJubileeService {
           const failedEmailDetail = {
             emailType: 'silver-jubilee-invitation',
             emailMetadata: {
-              subject: `Silver Jubilee Invitation - Your Secret Code: ${participant.secretCode}`,
+              subject: `🎉 Congratulations! Your Registration for the National Ideal College Silver Jubilee is Confirmed`,
               to: participant.email || 'unknown',
               from: 'nic.alumniassociation.official@gmail.com',
               cc: [],

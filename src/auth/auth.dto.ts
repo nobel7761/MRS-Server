@@ -59,3 +59,26 @@ export class UserLoginDto {
   @IsNotEmpty()
   password: string;
 }
+
+export class ForgotPasswordDto {
+  @IsString()
+  @IsNotEmpty()
+  identifier: string; // Can be email or phone number
+}
+
+export class ResetPasswordWithTokenDto {
+  @IsString()
+  @IsNotEmpty()
+  token: string; // Reset token sent via email
+
+  @IsString()
+  @IsNotEmpty()
+  @Matches(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/,
+    {
+      message:
+        'Password must be 8-16 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character',
+    },
+  )
+  newPassword: string;
+}
