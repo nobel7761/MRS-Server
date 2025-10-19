@@ -13,13 +13,15 @@ import {
   CreateSilverJubileeParticipantDto,
   UpdateSilverJubileeParticipantDto,
 } from './dto/silver-jubilee.dto';
-import { JwtPayload } from 'src/auth/jwt-payload';
+import { JwtPayload } from '../auth/jwt-payload';
+import { EmailService } from '../email/services/email.service';
 
 @Injectable()
 export class SilverJubileeService {
   constructor(
     @InjectModel(SilverJubileeParticipant.name)
     private participantModel: Model<SilverJubileeParticipantDocument>,
+    private emailService: EmailService,
   ) {}
 
   async create(createDto: CreateSilverJubileeParticipantDto, user: JwtPayload) {
@@ -399,6 +401,217 @@ export class SilverJubileeService {
       throw new BadRequestException(
         `Failed to fetch participants by batch and group: ${error.message}`,
       );
+    }
+  }
+
+  async sendParticipantEmail(participantId: string, user: JwtPayload) {
+    try {
+      // Find the participant
+      const participant = await this.participantModel
+        .findById(participantId)
+        .exec();
+
+      if (!participant) {
+        throw new NotFoundException(
+          `Participant with ID ${participantId} not found`,
+        );
+      }
+
+      // Determine the recipient email based on participant category
+      let recipientEmail: string;
+      let recipientName: string;
+
+      if (participant.participantCategory === 'Guest') {
+        if (!participant.email && !participant.guestMobileNumber) {
+          throw new BadRequestException(
+            'Guest participant must have an email or mobile number',
+          );
+        }
+        recipientEmail = (participant.email ||
+          participant.guestMobileNumber) as string;
+        recipientName = participant.guestName || 'Guest';
+      } else if (participant.participantCategory === 'Baby') {
+        if (!participant.email && !participant.babyPhone) {
+          throw new BadRequestException(
+            'Baby participant must have an email or phone number',
+          );
+        }
+        recipientEmail = (participant.email || participant.babyPhone) as string;
+        recipientName = participant.babyName || 'Baby';
+      } else {
+        if (!participant.email) {
+          throw new BadRequestException(
+            'Participant must have an email address',
+          );
+        }
+        recipientEmail = participant.email;
+        recipientName = participant.fullName || 'Participant';
+      }
+
+      // Prepare email template data
+      const emailTemplateData = {
+        recipientName: recipientName,
+        fullName: recipientName,
+        secretCode: participant.secretCode,
+        entryCode: participant.secretCode, // Template uses {{entryCode}}
+        participantCategory: participant.participantCategory,
+        hscPassingYear:
+          participant.hscPassingYear || participant.mainParticipantBatch,
+        group: participant.group || participant.mainParticipantGroup,
+        currentYear: new Date().getFullYear(),
+        recipientEmail: recipientEmail,
+        // Add any additional data needed for the template
+        establishmentYear: 2000, // Adjust as needed
+        registrationLink: 'https://nicaa.org/silver-jubilee/register',
+        scheduleLink: 'https://nicaa.org/silver-jubilee/schedule',
+        contactEmail: 'info@nicaa.org',
+        contactPhone: '+880-XXX-XXXXXX',
+        websiteUrl: 'https://nicaa.org',
+        collegeAddress: 'National Ideal College',
+        collegeCity: 'Dhaka',
+        collegeState: 'Dhaka',
+        collegeZipCode: '1207',
+        facebookUrl: 'https://facebook.com/nicaa',
+        twitterUrl: 'https://twitter.com/nicaa',
+        instagramUrl: 'https://instagram.com/nicaa',
+        linkedinUrl: 'https://linkedin.com/company/nicaa',
+      };
+
+      // Prepare email subject
+      const emailSubject = `Silver Jubilee Invitation - Your Secret Code: ${participant.secretCode}`;
+
+      // Send the email
+      const emailResult = await this.emailService.sendTestEmail(
+        recipientEmail,
+        emailSubject,
+        'silver-jubilee-announcement',
+        emailTemplateData,
+      );
+
+      // Get the full email HTML content for storage
+      const emailContent = await this.renderEmailContent(
+        'silver-jubilee-announcement',
+        emailTemplateData,
+      );
+
+      // Create email sending detail
+      const emailSendingDetail = {
+        emailType: 'silver-jubilee-invitation',
+        emailMetadata: {
+          subject: emailSubject,
+          to: recipientEmail,
+          from: 'nic.alumniassociation.official@gmail.com',
+          cc: [],
+          bcc: [],
+        },
+        emailContent: emailContent,
+        sentAt: new Date(),
+        sentBy: {
+          userId: user._id,
+          userName: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+          role: user.role,
+          system: false,
+        },
+        status: emailResult.success ? 'success' : 'failed',
+        messageId: emailResult.messageId,
+        notes: `Email sent to ${recipientName} (${recipientEmail})`,
+      };
+
+      // Update participant with email details
+      participant.emailSendingDetails.push(emailSendingDetail);
+      participant.isEmailSent = true;
+
+      await participant.save();
+
+      return {
+        success: true,
+        message: 'Email sent successfully',
+        participant: {
+          id: participant._id,
+          name: recipientName,
+          email: recipientEmail,
+          secretCode: participant.secretCode,
+          isEmailSent: participant.isEmailSent,
+          totalEmailsSent: participant.emailSendingDetails.length,
+          lastEmailSentAt: emailSendingDetail.sentAt,
+        },
+        emailDetails: emailSendingDetail,
+      };
+    } catch (error) {
+      // If sending fails, still save the failed attempt
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
+
+      // Try to save the failed attempt
+      try {
+        const participant = await this.participantModel
+          .findById(participantId)
+          .exec();
+        if (participant) {
+          const failedEmailDetail = {
+            emailType: 'silver-jubilee-invitation',
+            emailMetadata: {
+              subject: `Silver Jubilee Invitation - Your Secret Code: ${participant.secretCode}`,
+              to: participant.email || 'unknown',
+              from: 'nic.alumniassociation.official@gmail.com',
+              cc: [],
+              bcc: [],
+            },
+            emailContent: '',
+            sentAt: new Date(),
+            sentBy: {
+              userId: user._id,
+              userName: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+              role: user.role,
+              system: false,
+            },
+            status: 'failed',
+            error: error.message,
+            notes: 'Email sending failed',
+          };
+
+          participant.emailSendingDetails.push(failedEmailDetail);
+          await participant.save();
+        }
+      } catch (saveError) {
+        // Log but don't throw
+        console.error('Failed to save error details:', saveError);
+      }
+
+      throw new BadRequestException(`Failed to send email: ${error.message}`);
+    }
+  }
+
+  private async renderEmailContent(
+    templateName: string,
+    data: Record<string, any>,
+  ): Promise<string> {
+    try {
+      // Use handlebars to render the template
+      const fs = require('fs');
+      const path = require('path');
+      const handlebars = require('handlebars');
+
+      const templatePath = path.join(
+        __dirname,
+        '../email/templates',
+        `${templateName}.hbs`,
+      );
+
+      if (!fs.existsSync(templatePath)) {
+        return 'Email content not available';
+      }
+
+      const templateContent = fs.readFileSync(templatePath, 'utf-8');
+      const template = handlebars.compile(templateContent);
+      return template(data);
+    } catch (error) {
+      console.error('Failed to render email content:', error);
+      return 'Email content rendering failed';
     }
   }
 }

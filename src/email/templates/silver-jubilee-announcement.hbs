@@ -8,7 +8,8 @@
       rel='stylesheet'
     />
     <style>
-      @keyframes shimmer {
+      /* Email-safe CSS - removed animations for better compatibility */
+      /* @keyframes shimmer {
         0% {
           left: -100%;
         }
@@ -24,25 +25,26 @@
         50% {
           transform: translateY(-10px);
         }
-      }
+      } */
       body {
         margin: 0;
         padding: 0;
         font-family: Arial, sans-serif;
         background-color: #f5f5f5;
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        /* min-height: 100vh; */
+        /* display: flex; */
+        /* align-items: center; */
+        /* justify-content: center; */
       }
       .container {
-        width: 60%;
-        max-width: 60%;
+        width: 100%;
+        max-width: 600px;
         background-color: #ffffff;
         padding: 10px;
         border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); */
         text-align: center;
+        margin: 0 auto;
       }
       .header {
         display: flex;
@@ -50,7 +52,7 @@
         justify-content: space-between;
         margin-bottom: 30px;
         padding: 15px;
-        background-image: url('/uploads/background.jpg');
+        background-image: url('https://res.cloudinary.com/dfgghtrbn/image/upload/v1760857690/bsfm2khj6werglhqndg4.jpg');
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
@@ -82,7 +84,7 @@
       }
       .header-text {
         flex: 1;
-        text-align: center;
+        text-align: left;
         margin: 0 10px;
         min-width: 0;
       }
@@ -128,35 +130,85 @@
   </head>
   <body>
     <div class='container'>
-      <div class='header'>
-        <img
-          src='/uploads/LogoNationalIdealCollege.png'
-          alt='National Ideal College'
-          class='logo'
-        />
-        <div class='header-text'>
-          <h1>National Ideal College Silver Jubilee</h1>
-          <div class='organized-by'>
-            organized by:
-            <a
-              href='https://www.facebook.com/NationalIdealCollegeAlumniAssociation'
-              target='_blank'
-            >
-              National Ideal College Alumni Association
-            </a>
-          </div>
-        </div>
-        <img
-          src='/uploads/LogoSilverJubilee.png'
-          alt='Silver Jubilee'
-          class='logo'
-        />
+      {{!-- <div class='header'>
+        <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
+          <tr>
+            <td width="80" align="left" valign="middle">
+              <img
+                src="https://res.cloudinary.com/dfgghtrbn/image/upload/v1760857692/ofxi4kvozt2uufoipkpj.png"
+                alt='National Ideal College'
+                class='logo'
+              />
+            </td>
+            <td align="left" valign="middle" style="padding: 0 15px;">
+              <div class='header-text'>
+                <h1>National Ideal College Silver Jubilee</h1>
+                <div class='organized-by'>
+                  organized by:
+                  <a
+                    href='https://www.facebook.com/NationalIdealCollegeAlumniAssociation'
+                    target='_blank'
+                  >
+                    National Ideal College Alumni Association
+                  </a>
+                </div>
+              </div>
+            </td>
+            <td width="80" align="right" valign="middle">
+              <img
+                src='https://res.cloudinary.com/dfgghtrbn/image/upload/v1760857690/eeumelqr79ienie3l6ow.png'
+                alt='Silver Jubilee'
+                class='logo'
+              />
+            </td>
+          </tr>
+        </table>
+      </div> --}}
+      
+      <div>
+         <div
+           style="background-image: url('https://res.cloudinary.com/dfgghtrbn/image/upload/v1760857690/bsfm2khj6werglhqndg4.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; padding: 20px 0; text-align: center; position: relative; overflow: hidden; margin: 0 -10px; width: calc(100% + 20px);"
+         >
+           <div
+             style='position: absolute; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.4);'
+           ></div>
+           <div style='position: relative; z-index:2; margin-bottom: 10px;'>
+             <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
+               <tr>
+                 <td width="100" align="left" valign="middle" style="padding: 10px 15px 10px 20px;">
+                   <img
+                     src="https://res.cloudinary.com/dfgghtrbn/image/upload/v1760857692/ofxi4kvozt2uufoipkpj.png"
+                     alt='National Ideal College'
+                     class='logo'
+                   />
+                 </td>
+                 <td align="center" valign="middle" style="padding: 15px 20px;">
+                   <div style="text-align: center;">
+                     <p
+                       style="color: white; font-size: 20px; font-weight: 700; margin:0 0 3px 0; font-family: 'Rubik', sans-serif; line-height: 1.2; text-transform: uppercase; letter-spacing: 1px;"
+                     >
+                       National Ideal College Silver Jubilee
+                     </p>
+                     <p style="font-size: 12px; color: rgba(255,255,255,0.9); margin: 0; font-weight: 400;">organized by: <a href="https://www.facebook.com/NationalIdealCollegeAlumniAssociation" target="_blank" style="color: #4fc3f7; text-decoration: none; font-weight: 500;">National Ideal College Alumni Association</a></p>
+                   </div>
+                 </td>
+                 <td width="100" align="right" valign="middle" style="padding: 10px 20px 10px 15px;">
+                   <img
+                     src='https://res.cloudinary.com/dfgghtrbn/image/upload/v1760857690/eeumelqr79ienie3l6ow.png'
+                     alt='Silver Jubilee'
+                     class='logo'
+                   />
+                 </td>
+               </tr>
+             </table>
+           </div>
+         </div>
       </div>
 
       <div class='content'>
         <!-- Top Header Section with Background Image -->
-        <div
-          style="background-image: url('/uploads/background.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; padding: 60px 0; text-align: center; position: relative; overflow: hidden; margin: 0 -10px; width: calc(100% + 20px);"
+        {{!-- <div
+          style="background-image: url('https://res.cloudinary.com/dfgghtrbn/image/upload/v1760857690/bsfm2khj6werglhqndg4.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; padding: 60px 0; text-align: center; position: relative; overflow: hidden; margin: 0 -10px; width: calc(100% + 20px);"
         >
           <div
             style='position: absolute; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.4);'
@@ -168,7 +220,7 @@
               Your Registration Is Confirmed.
             </h1>
           </div>
-        </div>
+        </div> --}}
 
         <!-- Main Content Section -->
         <div style='background: white'>
@@ -184,7 +236,7 @@
             >
               Thank you for your registration! We're thrilled to have you join
               us for this historic celebration.
-            </p>
+            </p> 
             <p
               style="color:#666; font-size:15px; line-height:1.5; margin:0; font-family:'Rubik',sans-serif; text-align:left;"
             >
@@ -198,16 +250,10 @@
 
           <!-- Entry Code Section -->
           <div
-            style="background-image: url('/uploads/background.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; padding: 25px; border-radius: 15px; margin: 10px 0; text-align: center; position: relative; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.2);"
+            style="background-image: url('https://res.cloudinary.com/dfgghtrbn/image/upload/v1760857690/bsfm2khj6werglhqndg4.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; padding: 25px; border-radius: 15px; margin: 10px 0; text-align: center; position: relative; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.2);"
           >
             <div
               style='position:absolute; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.4); z-index:1;'
-            ></div>
-            <div
-              style='position:absolute; top:-15px; right:-15px; width:60px; height:60px; background: rgba(255,255,255,0.1); border-radius:50%; animation:float 3s ease-in-out infinite; z-index:2;'
-            ></div>
-            <div
-              style='position:absolute; bottom:-20px; left:-20px; width:40px; height:40px; background: rgba(255,255,255,0.08); border-radius:50%; animation:float 3s ease-in-out infinite reverse; z-index:2;'
             ></div>
             <div style='position: relative; z-index:3'>
               <h3
@@ -216,14 +262,9 @@
                 🎫 Your Entry Verification Code
               </h3>
               <div
-                style="background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); color:#00ff88; padding:18px 30px; border-radius:12px; font-family:'Courier New', monospace; font-size:26px; font-weight:bold; letter-spacing:3px; margin:0 0 15px 0; border:2px solid rgba(0,255,136,0.4); box-shadow: inset 0 0 20px rgba(0,255,136,0.2), 0 0 25px rgba(0,255,136,0.3), 0 4px 15px rgba(0,0,0,0.2); text-shadow:0 0 12px rgba(0,255,136,0.6); position:relative; overflow:hidden;"
+                style="background: rgba(0,0,0,0.4); color:#00ff88; padding:18px 30px; border-radius:12px; font-family:'Courier New', monospace; font-size:26px; font-weight:bold; letter-spacing:3px; margin:0 0 15px 0; border:2px solid rgba(0,255,136,0.4); text-shadow:0 0 12px rgba(0,255,136,0.6);"
               >
-                <div
-                  style='position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg, transparent, rgba(0,255,136,0.15), rgba(255,255,255,0.1), rgba(0,255,136,0.15), transparent); animation: shimmer 2.5s infinite;'
-                ></div>
-                <span
-                  style='position: relative; z-index:2;'
-                >{{entryCode}}</span>
+                {{entryCode}}
               </div>
               <div
                 style='background: rgba(255,255,255,0.15); padding:10px 20px; border-radius:20px; display:inline-block; margin:0 0 10px 0;'
@@ -249,7 +290,7 @@
           <!-- Event Information -->
           <div style='margin:5px 0'>
             <div
-              style="background-image: url('/uploads/background.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; padding:25px; border-radius:15px; position:relative; overflow:hidden; box-shadow:0 8px 20px rgba(0,0,0,0.2);"
+              style="background-image: url('https://res.cloudinary.com/dfgghtrbn/image/upload/v1760857690/bsfm2khj6werglhqndg4.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; padding:25px; border-radius:15px; position:relative; overflow:hidden; box-shadow:0 8px 20px rgba(0,0,0,0.2);"
             >
               <div
                 style='position:absolute; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.4); z-index:1;'
@@ -258,7 +299,7 @@
                 style="color:white; font-size:22px; margin:0 0 15px 0; font-family:'Rubik',sans-serif; font-weight:700; position:relative; z-index:2;"
               >🎉 Event Details</h3>
               <div
-                style='display:flex; gap:20px; margin-bottom:15px; position:relative; z-index:2;'
+                style='margin-bottom:15px; position:relative; z-index:2;'
               >
                 <div style='flex:1;'>
                   <p
@@ -296,11 +337,182 @@
               day of celebration, networking, and reconnection.
             </p>
 
+            <div style='margin: 20px 0'>
+              <h4
+                style="color: #333; font-size: 16px; margin: 0 0 15px 0; font-family: 'Rubik', sans-serif; font-weight: 600;"
+              >
+                📋 Event Rules & Guidelines
+              </h4>
+
+              <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse; margin-bottom: 15px;">
+                <tr>
+                  <td width="25%" style="padding: 5px;">
+                    <div style="background: #e8f5e8; color: #2d5a2d; padding: 8px 12px; border-radius: 15px; font-size: 13px; font-family: 'Rubik', sans-serif; font-weight: 500; text-align: center;">
+                      🚭 Non-Smoking Zone
+                    </div>
+                  </td>
+                  <td width="25%" style="padding: 5px;">
+                    <div style="background: #e3f2fd; color: #1565c0; padding: 8px 12px; border-radius: 15px; font-size: 13px; font-family: 'Rubik', sans-serif; font-weight: 500; text-align: center;">
+                      📹 Full CCTV Coverage
+                    </div>
+                  </td>
+                  <td width="25%" style="padding: 5px;">
+                    <div style="background: #fce4ec; color: #c2185b; padding: 8px 12px; border-radius: 15px; font-size: 13px; font-family: 'Rubik', sans-serif; font-weight: 500; text-align: center;">
+                      👶 Breastfeeding Room Available
+                    </div>
+                  </td>
+                  <td width="25%" style="padding: 5px;">
+                    <div style="background: #f3e5f5; color: #7b1fa2; padding: 8px 12px; border-radius: 15px; font-size: 13px; font-family: 'Rubik', sans-serif; font-weight: 500; text-align: center;">
+                      🚻 Restrooms Available (Boys & Girls)
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td width="25%" style="padding: 5px;">
+                    <div style="background: #e8eaf6; color: #3f51b5; padding: 8px 12px; border-radius: 15px; font-size: 13px; font-family: 'Rubik', sans-serif; font-weight: 500; text-align: center;">
+                      🎵 Live Music & Entertainment
+                    </div>
+                  </td>
+                  <td width="25%" style="padding: 5px;">
+                    <div style="background: #ffebee; color: #c62828; padding: 8px 12px; border-radius: 15px; font-size: 13px; font-family: 'Rubik', sans-serif; font-weight: 500; text-align: center;">
+                      🚫 Entry Only with Registration
+                    </div>
+                  </td>
+                  <td width="25%" style="padding: 5px;">
+                    <div style="background: #e3f2fd; color: #1565c0; padding: 8px 12px; border-radius: 15px; font-size: 13px; font-family: 'Rubik', sans-serif; font-weight: 500; text-align: center;">
+                      👥 Guests Allowed After Registration
+                    </div>
+                  </td>
+                  <td width="25%" style="padding: 5px;">
+                    <div style="background: #e0f7fa; color: #006064; padding: 8px 12px; border-radius: 15px; font-size: 13px; font-family: 'Rubik', sans-serif; font-weight: 500; text-align: center;">
+                      🏥 First Aid Station Available
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td width="25%" style="padding: 5px;">
+                    <div style="background: #fff8e1; color: #f57f17; padding: 8px 12px; border-radius: 15px; font-size: 13px; font-family: 'Rubik', sans-serif; font-weight: 500; text-align: center;">
+                      🎁 Souvenir Distribution
+                    </div>
+                  </td>
+                  <td width="25%" style="padding: 5px;"></td>
+                  <td width="25%" style="padding: 5px;"></td>
+                  <td width="25%" style="padding: 5px;"></td>
+                </tr>
+              </table>
+
+              <div
+                style='margin-top: 15px; padding: 10px; background: #f5f5f5; border-radius: 8px; border-left: 3px solid #667eea;'
+              >
+                <p
+                  style="color: #666; font-size: 12px; line-height: 1.4; margin: 0; font-family: 'Rubik', sans-serif; text-align: left; font-style: italic;"
+                >
+                  <strong>Note:</strong> These rules and guidelines may be
+                  subject to change at the discretion of the National Ideal
+                  College Alumni Association (NICAA). Please stay updated
+                  through official channels.
+                </p>
+              </div>
+            </div>
+
             <div style='text-align:center; margin:20px 0'>
               <p
                 style="color:#667eea; font-size:24px; line-height:1.4; margin:0; font-family:'Rubik',sans-serif; font-weight:700; text-shadow:0 2px 4px rgba(102,126,234,0.3);"
               >
                 🎉 See you on December 27th! 🎓 ✨
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Footer Section -->
+        <div
+          style="background-image: url('https://res.cloudinary.com/dfgghtrbn/image/upload/v1760857690/bsfm2khj6werglhqndg4.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; padding: 10px 0; text-align: center; margin: 0 -10px; width: calc(100% + 20px); position: relative; overflow: hidden;"
+        >
+          <!-- Background Logo Watermark -->
+          <div style='position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1; background-image: url("https://res.cloudinary.com/dfgghtrbn/image/upload/v1760857690/mktusbadyehh2wgdnuwn.png"); background-size: 250px; background-repeat: no-repeat; background-position: center; opacity: 0.15; pointer-events: none;'></div>
+          <!-- Overlay for better text readability -->
+          <div
+            style='position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.4); z-index: 2;'
+          ></div>
+          <!-- Footer Content with Logo Background -->
+          <div style='position: relative; z-index: 3; text-align: center; padding: 25px 0; background: rgba(0, 0, 0, 0.2);'>
+            
+            <!-- Phone Numbers -->
+            <div style='position: relative; z-index: 4; margin-bottom: 15px;'>
+              <p
+                style="color: white; font-size: 12px; margin: 0 0 8px 0; font-family: 'Rubik', sans-serif; font-weight: 500;"
+              >
+                For any query, please call:
+              </p>
+              <p
+                style="color: white; font-size: 12px; margin: 0; font-family: 'Rubik', sans-serif; font-weight: 500;"
+              >
+                📞 Nobel (2015): 01611627761 &nbsp;&nbsp;&nbsp; 📞 Monem (2017):
+                01875600413
+              </p>
+            </div>
+
+            <!-- Social Media Links -->
+            <div style='margin-bottom: 15px; position: relative; z-index: 4'>
+            <p
+              style="color: white; font-size: 12px; margin: 0 0 8px 0; font-family: 'Rubik', sans-serif; font-weight: 500;"
+            >
+              Follow us on:
+            </p>
+            <div
+              style='text-align: center;'
+            >
+              <a
+                href='https://www.facebook.com/NationalIdealCollegeAlumniAssociation'
+                target='_blank'
+                style="display: inline-block; text-decoration: none; color: white; font-size: 12px; font-family: 'Rubik', sans-serif; font-weight: 500; background: rgba(255, 255, 255, 0.15); padding: 6px 10px; border-radius: 15px; margin: 3px; border: 1px solid rgba(255, 255, 255, 0.2);"
+              >
+                Facebook Page
+              </a>
+              <a
+                href='https://www.facebook.com/groups/936848456437550'
+                target='_blank'
+                style="display: inline-block; text-decoration: none; color: white; font-size: 12px; font-family: 'Rubik', sans-serif; font-weight: 500; background: rgba(255, 255, 255, 0.15); padding: 6px 10px; border-radius: 15px; margin: 3px; border: 1px solid rgba(255, 255, 255, 0.2);"
+              >
+                Facebook Group
+              </a>
+              <a
+                href='https://www.youtube.com/@nationalidealcollegealumni9865'
+                target='_blank'
+                style="display: inline-block; text-decoration: none; color: white; font-size: 12px; font-family: 'Rubik', sans-serif; font-weight: 500; background: rgba(255, 255, 255, 0.15); padding: 6px 10px; border-radius: 15px; margin: 3px; border: 1px solid rgba(255, 255, 255, 0.2);"
+              >
+                YouTube
+              </a>
+              <a
+                href='https://www.instagram.com/nic_alumni_association/'
+                target='_blank'
+                style="display: inline-block; text-decoration: none; color: white; font-size: 12px; font-family: 'Rubik', sans-serif; font-weight: 500; background: rgba(255, 255, 255, 0.15); padding: 6px 10px; border-radius: 15px; margin: 3px; border: 1px solid rgba(255, 255, 255, 0.2);"
+              >
+                Instagram
+              </a>
+            </div>
+
+            <!-- Attribution -->
+            <div style='margin: 40px 0px 0px 0px; position: relative; z-index: 4'>
+              <p
+                style="color: rgba(255, 255, 255, 0.9); font-size: 12px; font-family: 'Rubik', sans-serif; font-weight: 400; text-align: center; font-style: italic; margin: 0 0 5px 0;"
+              >
+                This email was sent from the official website of NICAA developed
+                by
+                <a
+                  href='https://www.facebook.com/habibur.rahaman.nobel'
+                  target='_blank'
+                  style='color: #4fc3f7; text-decoration: none; font-weight: 500'
+                >
+                  Habibur Nobel
+                </a>
+              </p>
+              <p
+                style="color: rgba(255, 255, 255, 0.8); font-size: 12px; margin: 0; font-family: 'Rubik', sans-serif;"
+              >
+                © 2025 National Ideal College Alumni Association. All rights
+                reserved.
               </p>
             </div>
           </div>

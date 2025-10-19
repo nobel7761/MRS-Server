@@ -6,6 +6,7 @@ import {
   SilverJubileeParticipant,
   SilverJubileeParticipantSchema,
 } from './schemas/silver-jubilee.schema';
+import { EmailModule } from '../email/email.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import {
         schema: SilverJubileeParticipantSchema,
       },
     ]),
+    EmailModule,
   ],
   controllers: [SilverJubileeController],
   providers: [SilverJubileeService],

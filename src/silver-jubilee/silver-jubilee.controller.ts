@@ -66,4 +66,11 @@ export class SilverJubileeController {
   async remove(@Param('id') id: string) {
     return this.silverJubileeService.remove(id);
   }
+
+  @Post(':id/send-email')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  async sendEmail(@Param('id') id: string, @AuthUser() user: JwtPayload) {
+    return this.silverJubileeService.sendParticipantEmail(id, user);
+  }
 }
