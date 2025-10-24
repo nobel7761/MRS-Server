@@ -37,6 +37,18 @@ export class UserController {
     }
   }
 
+  @Get('collectors')
+  @UseGuards(JwtAuthGuard)
+  async getAllCollectors() {
+    try {
+      const collectors = await this.usersService.findAllCollectors();
+      return collectors;
+    } catch (error) {
+      console.error('User Controller - Get Collectors Error:', error);
+      throw error;
+    }
+  }
+
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   async getUserById(@Param('id') id: string) {

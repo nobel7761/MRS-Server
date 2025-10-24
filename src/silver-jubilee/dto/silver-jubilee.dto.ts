@@ -194,6 +194,17 @@ export class CreateSilverJubileeParticipantDto {
   @MinLength(10)
   @MaxLength(15)
   babyPhone?: string;
+
+  // New fields for tracking registration details
+  @ValidateIf((o) => o.registeredUnder !== '' && o.registeredUnder !== null)
+  @IsString()
+  @IsOptional()
+  registeredUnder?: string;
+
+  @ValidateIf((o) => o.formFilledUpBy !== '' && o.formFilledUpBy !== null)
+  @IsString()
+  @IsOptional()
+  formFilledUpBy?: string;
 }
 
 // Update Participant DTO
@@ -317,6 +328,15 @@ export class UpdateSilverJubileeParticipantDto {
   @MinLength(10)
   @MaxLength(15)
   guestMobileNumber?: string;
+
+  // New fields for tracking registration details
+  @IsString()
+  @IsOptional()
+  registeredUnder?: string;
+
+  @IsString()
+  @IsOptional()
+  formFilledUpBy?: string;
 }
 
 // Query DTO for filtering and pagination
@@ -473,7 +493,8 @@ export class SilverJubileeParticipantResponseDto {
   comments?: string;
   isEmailSent?: boolean;
   emailSendingDetails?: EmailSendingDetailDto[];
-  registeredBy?: string;
+  registeredUnder?: string;
+  formFilledUpBy?: string;
   fatherName?: string;
   fatherPhoneNumber?: string;
   fatherOccupation?: string;

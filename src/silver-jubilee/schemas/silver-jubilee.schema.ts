@@ -122,7 +122,10 @@ export class SilverJubileeParticipant {
 
   // Registration tracking
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User' })
-  registeredBy?: string;
+  registeredUnder?: string;
+
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User' })
+  formFilledUpBy?: string;
 
   // Parents Information (optional for guests, required for others)
   @Prop({ trim: true })

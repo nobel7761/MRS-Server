@@ -55,7 +55,7 @@ export class SilverJubileeService {
       const participant = new this.participantModel({
         ...createDto,
         secretCode,
-        registeredBy: user._id,
+        formFilledUpBy: user._id, // Store the logged-in user's ID as formFilledUpBy
       });
 
       const savedParticipant = await participant.save();
@@ -268,7 +268,8 @@ export class SilverJubileeService {
       const participants = await this.participantModel
         .find()
         .sort({ createdAt: -1 })
-        .populate('registeredBy', 'firstName lastName email')
+        .populate('registeredUnder', 'firstName lastName email')
+        .populate('formFilledUpBy', 'firstName lastName email')
         .exec();
 
       // Return array directly

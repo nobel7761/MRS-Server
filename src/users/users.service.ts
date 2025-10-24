@@ -195,4 +195,8 @@ export class UsersService {
       })
       .exec();
   }
+
+  async findAllCollectors(): Promise<User[]> {
+    return this.userModel.find({ userType: UserType.COLLECTOR }).exec();
+  }
 }
