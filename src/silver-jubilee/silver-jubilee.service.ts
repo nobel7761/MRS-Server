@@ -15,6 +15,15 @@ import {
 } from './dto/silver-jubilee.dto';
 import { JwtPayload } from '../auth/jwt-payload';
 import { EmailService } from '../email/services/email.service';
+import * as csv from 'csv-parser';
+import { Readable } from 'stream';
+import {
+  SilverJubileeParticipantCategory,
+  SilverJubileeGroup,
+  SilverJubileeGender,
+  SilverJubileeBloodGroup,
+  SilverJubileePaymentType,
+} from './enums/silver-jubilee.enum';
 
 @Injectable()
 export class SilverJubileeService {
@@ -234,24 +243,24 @@ export class SilverJubileeService {
         { field: 'group', message: 'Group is required' },
         { field: 'gender', message: 'Gender is required' },
         { field: 'bloodGroup', message: 'Blood group is required' },
-        { field: 'fatherName', message: 'Father name is required' },
-        {
-          field: 'fatherPhoneNumber',
-          message: 'Father phone number is required',
-        },
-        {
-          field: 'fatherOccupation',
-          message: 'Father occupation is required',
-        },
-        { field: 'motherName', message: 'Mother name is required' },
-        {
-          field: 'motherPhoneNumber',
-          message: 'Mother phone number is required',
-        },
-        {
-          field: 'motherOccupation',
-          message: 'Mother occupation is required',
-        },
+        // { field: 'fatherName', message: 'Father name is required' },
+        // {
+        //   field: 'fatherPhoneNumber',
+        //   message: 'Father phone number is required',
+        // },
+        // {
+        //   field: 'fatherOccupation',
+        //   message: 'Father occupation is required',
+        // },
+        // { field: 'motherName', message: 'Mother name is required' },
+        // {
+        //   field: 'motherPhoneNumber',
+        //   message: 'Mother phone number is required',
+        // },
+        // {
+        //   field: 'motherOccupation',
+        //   message: 'Mother occupation is required',
+        // },
       ];
 
       for (const { field, message } of requiredFields) {
@@ -634,5 +643,331 @@ export class SilverJubileeService {
       console.error('Failed to render email content:', error);
       return 'Email content rendering failed';
     }
+  }
+
+  async uploadCsvAndCreateParticipants(
+    file: Express.Multer.File,
+    user: JwtPayload,
+  ) {
+    console.log('1');
+    if (!file) {
+      console.log('2');
+      throw new BadRequestException('No file uploaded');
+    }
+    console.log('3');
+    if (!file.mimetype.includes('csv') && !file.originalname.endsWith('.csv')) {
+      console.log('4');
+      throw new BadRequestException('File must be a CSV file');
+    }
+    console.log('5');
+    const results: SilverJubileeParticipant[] = [];
+    const errors: Array<{ row: any; error: string }> = [];
+    let successCount = 0;
+    let errorCount = 0;
+    console.log('6');
+    return new Promise((resolve, reject) => {
+      // Try different encodings to handle Bengali text properly
+      let csvContent = '';
+      try {
+        csvContent = file.buffer.toString('utf8');
+      } catch (error) {
+        csvContent = file.buffer.toString('latin1');
+      }
+
+      console.log('CSV content preview:', csvContent.substring(0, 200));
+
+      const stream = Readable.from(csvContent);
+      console.log('7');
+      stream
+        .pipe(csv())
+        .on('data', async (row) => {
+          console.log('Processing CSV row:', row);
+          try {
+            const participantData = this.mapCsvRowToParticipant(row);
+            console.log('Mapped participant data:', participantData);
+            const participant = await this.createParticipantFromCsv(
+              participantData,
+              user,
+            );
+            console.log('Created participant:', participant);
+            results.push(participant);
+            successCount++;
+          } catch (error) {
+            console.log('Error processing row:', error.message);
+            errors.push({
+              row: row,
+              error: error.message,
+            });
+            errorCount++;
+          }
+        })
+        .on('end', () => {
+          resolve({
+            message: 'CSV processing completed',
+            totalProcessed: successCount + errorCount,
+            successCount,
+            errorCount,
+            successfulParticipants: results,
+            errors,
+          });
+        })
+        .on('error', (error) => {
+          reject(
+            new BadRequestException(`CSV parsing error: ${error.message}`),
+          );
+        });
+    });
+  }
+
+  private mapCsvRowToParticipant(row: any): CreateSilverJubileeParticipantDto {
+    // Debug: Log all available column names
+    console.log('Available CSV columns:', Object.keys(row));
+    console.log('Raw row data:', row);
+
+    // Helper function to find column value with multiple possible names
+    const findColumnValue = (
+      possibleNames: string[],
+      defaultValue: any = '',
+    ) => {
+      for (const name of possibleNames) {
+        if (row[name] !== undefined && row[name] !== null && row[name] !== '') {
+          return row[name];
+        }
+      }
+      return defaultValue;
+    };
+
+    // Try different possible column names for amount
+    const amountValue = findColumnValue(
+      [
+        'রেজিস্ট্রেশন এমাউন্ট',
+        'Registration Amount',
+        'Amount',
+        'amount',
+        'রেজিস্ট্রেশন এমাউন্ট',
+        'Registration_Amount',
+        'AMOUNT',
+      ],
+      0,
+    );
+
+    console.log('Amount value found:', amountValue);
+    console.log('Parsed amount:', parseFloat(amountValue));
+
+    // Map CSV columns to our DTO fields using flexible column mapping
+    const participantData: CreateSilverJubileeParticipantDto = {
+      participantCategory: this.determineParticipantCategory(
+        parseFloat(amountValue) || 0,
+      ),
+      fullName: findColumnValue([
+        'Full Name',
+        'fullName',
+        'Full_Name',
+        'Name',
+        'name',
+      ]),
+      phoneNumber: findColumnValue([
+        'Phone Number',
+        'phoneNumber',
+        'Phone_Number',
+        'Phone',
+        'phone',
+      ]),
+      alternativePhoneNumber: findColumnValue([
+        'Alternative Phone Number',
+        'alternativePhoneNumber',
+        'Alternative_Phone_Number',
+        'Alt Phone',
+        'altPhone',
+      ]),
+      email: findColumnValue([
+        'Email',
+        'email',
+        'EMAIL',
+        'Email Address',
+        'emailAddress',
+      ]),
+      hscPassingYear:
+        parseInt(
+          findColumnValue(
+            [
+              'HSC Passing Year',
+              'hscPassingYear',
+              'HSC_Passing_Year',
+              'HSC Year',
+              'hscYear',
+            ],
+            0,
+          ),
+        ) || undefined,
+      group: this.mapGroup(
+        findColumnValue(['Group', 'group', 'GROUP', 'Subject', 'subject']),
+      ),
+      gender: this.mapGender(
+        findColumnValue(['Gender', 'gender', 'GENDER', 'Sex', 'sex']),
+      ),
+      bloodGroup: this.mapBloodGroup(
+        findColumnValue([
+          'Blood Group',
+          'bloodGroup',
+          'Blood_Group',
+          'Blood',
+          'blood',
+        ]),
+      ),
+      paymentType: this.mapPaymentType(
+        findColumnValue([
+          'পেমেন্ট টাইপ',
+          'Payment Type',
+          'paymentType',
+          'Payment_Type',
+          'Payment',
+          'payment',
+        ]),
+      ),
+      amount: parseFloat(amountValue) || 0,
+      comments: '',
+      fatherName: findColumnValue([
+        'Father Name',
+        'fatherName',
+        'Father_Name',
+        'Father',
+        'father',
+      ]),
+      fatherPhoneNumber: findColumnValue([
+        'Father Phone Number',
+        'fatherPhoneNumber',
+        'Father_Phone_Number',
+        'Father Phone',
+        'fatherPhone',
+      ]),
+      fatherOccupation: findColumnValue([
+        'Father Occupation',
+        'fatherOccupation',
+        'Father_Occupation',
+        'Father Job',
+        'fatherJob',
+      ]),
+      motherName: findColumnValue([
+        'Mother Name',
+        'motherName',
+        'Mother_Name',
+        'Mother',
+        'mother',
+      ]),
+      motherPhoneNumber: findColumnValue([
+        'Mother Phone Number',
+        'motherPhoneNumber',
+        'Mother_Phone_Number',
+        'Mother Phone',
+        'motherPhone',
+      ]),
+      motherOccupation: findColumnValue([
+        'Mother Occupation',
+        'motherOccupation',
+        'Mother_Occupation',
+        'Mother Job',
+        'motherJob',
+      ]),
+      registeredUnder: '67f577c411236e7c9265935f',
+    };
+
+    console.log('Final participant data amount:', participantData.amount);
+    return participantData;
+  }
+
+  private determineParticipantCategory(
+    amount: number,
+  ): SilverJubileeParticipantCategory {
+    if (amount === 5000)
+      return SilverJubileeParticipantCategory.LIFETIMEMEMBERSHIP;
+    if (amount === 2000 || amount === 1600)
+      return SilverJubileeParticipantCategory.ALUMNI;
+    if (amount === 1400) return SilverJubileeParticipantCategory.STUDENT;
+    if (amount === 1000) return SilverJubileeParticipantCategory.GUEST;
+    if (amount === 500) return SilverJubileeParticipantCategory.BABY;
+
+    // Default to ALUMNI if amount doesn't match any category
+    return SilverJubileeParticipantCategory.ALUMNI;
+  }
+
+  private mapGroup(group: string): SilverJubileeGroup {
+    const groupMap = {
+      Science: SilverJubileeGroup.SCIENCE,
+      'Business Studies': SilverJubileeGroup.BUSINESS_STUDIES,
+      Humanities: SilverJubileeGroup.HUMANITIES,
+    };
+    return groupMap[group] || SilverJubileeGroup.SCIENCE;
+  }
+
+  private mapGender(gender: string): SilverJubileeGender {
+    const genderMap = {
+      Male: SilverJubileeGender.MALE,
+      Female: SilverJubileeGender.FEMALE,
+    };
+    return genderMap[gender] || SilverJubileeGender.MALE;
+  }
+
+  private mapBloodGroup(bloodGroup: string): SilverJubileeBloodGroup {
+    const bloodGroupMap = {
+      'A+': SilverJubileeBloodGroup.A_POSITIVE,
+      'A-': SilverJubileeBloodGroup.A_NEGATIVE,
+      'B+': SilverJubileeBloodGroup.B_POSITIVE,
+      'B-': SilverJubileeBloodGroup.B_NEGATIVE,
+      'AB+': SilverJubileeBloodGroup.AB_POSITIVE,
+      'AB-': SilverJubileeBloodGroup.AB_NEGATIVE,
+      'O+': SilverJubileeBloodGroup.O_POSITIVE,
+      'O-': SilverJubileeBloodGroup.O_NEGATIVE,
+    };
+    return bloodGroupMap[bloodGroup] || SilverJubileeBloodGroup.A_POSITIVE;
+  }
+
+  private mapPaymentType(paymentType: string): SilverJubileePaymentType {
+    const paymentMap = {
+      ক্যাশ: SilverJubileePaymentType.CASH,
+      বিকাশ: SilverJubileePaymentType.BKASH,
+      'ব্যাংক একাউন্ট': SilverJubileePaymentType.BANK_ACCOUNT,
+    };
+    return paymentMap[paymentType] || SilverJubileePaymentType.CASH;
+  }
+
+  private async createParticipantFromCsv(
+    participantData: CreateSilverJubileeParticipantDto,
+    user: JwtPayload,
+  ): Promise<SilverJubileeParticipant> {
+    console.log('participantData', participantData.fullName);
+    // Validate required fields based on participant category
+    await this.validateParticipantData(participantData);
+    // Check if participant with same email or phone already exists
+    if (participantData.email || participantData.phoneNumber) {
+      const existingParticipant = await this.participantModel.findOne({
+        $or: [
+          { email: participantData.email },
+          { phoneNumber: participantData.phoneNumber },
+        ],
+      });
+
+      if (existingParticipant) {
+        throw new BadRequestException(
+          'Participant with this email or phone number already registered',
+        );
+      }
+    }
+
+    // Generate unique secret code
+    const secretCode = await this.generateUniqueSecretCode(participantData);
+
+    const participant = new this.participantModel({
+      ...participantData,
+      secretCode,
+      formFilledUpBy: user._id,
+    });
+    console.log('participant length', participant);
+    const savedParticipant = await participant.save();
+    console.log(
+      'savedParticipant length',
+      Object.keys(savedParticipant).length,
+    );
+    return savedParticipant;
   }
 }

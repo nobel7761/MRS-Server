@@ -10,7 +10,10 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { SilverJubileeService } from './silver-jubilee.service';
 import {
   CreateSilverJubileeParticipantDto,
@@ -50,6 +53,7 @@ export class SilverJubileeController {
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
+    console.log('id', id);
     return this.silverJubileeService.findOne(id);
   }
 
@@ -58,6 +62,7 @@ export class SilverJubileeController {
     @Param('id') id: string,
     @Body() updateDto: UpdateSilverJubileeParticipantDto,
   ) {
+    console.log('patch', id, updateDto);
     return this.silverJubileeService.update(id, updateDto);
   }
 
@@ -72,5 +77,16 @@ export class SilverJubileeController {
   @UseGuards(JwtAuthGuard)
   async sendEmail(@Param('id') id: string, @AuthUser() user: JwtPayload) {
     return this.silverJubileeService.sendParticipantEmail(id, user);
+  }
+
+  @Post('upload-csv')
+  @HttpCode(HttpStatus.CREATED)
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadCsv(
+    @UploadedFile() file: Express.Multer.File,
+    @AuthUser() user: JwtPayload,
+  ) {
+    return this.silverJubileeService.uploadCsvAndCreateParticipants(file, user);
   }
 }

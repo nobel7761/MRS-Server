@@ -127,7 +127,7 @@ export class SilverJubileeParticipant {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User' })
   formFilledUpBy?: string;
 
-  // Parents Information (optional for guests, required for others)
+  // Parents Information (optional for guests, alumni, students, and lifetime membership; required for others)
   @Prop({ trim: true })
   fatherName?: string;
 
