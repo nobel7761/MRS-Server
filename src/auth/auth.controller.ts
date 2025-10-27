@@ -97,23 +97,112 @@ export class AuthController {
     }
   }
 
-  @Post('refresh-token')
-  async refreshToken(
-    @AuthUser() user: IAuthUser,
-    @Req() req: Request,
-    @Res() res: Response,
-  ) {
+  @Post('check-token')
+  async checkToken(@Req() req: Request, @Res() res: Response) {
+    const authHeader = req.headers.authorization;
     const refreshToken = req.cookies['refreshToken'];
-    if (!refreshToken) {
-      throw new UnauthorizedException('No refresh token provided');
+
+    if (!authHeader && !refreshToken) {
+      return res.status(401).json({
+        statusCode: 401,
+        message: 'No authentication tokens found',
+        action: 'login',
+      });
     }
 
-    const { accessToken } = await this.authService.refreshToken(
-      user.uid,
-      refreshToken,
-    );
+    if (authHeader) {
+      const token = authHeader.split(' ')[1];
+      try {
+        // Try to verify the access token
+        const payload = this.authService.jwtService.verify(token, {
+          secret: process.env.JWT_ACCESS_SECRET,
+        });
 
-    return res.json({ accessToken });
+        return res.json({
+          valid: true,
+          message: 'Token is valid',
+          user: {
+            uid: payload.sub,
+            email: payload.email,
+            role: payload.role,
+            firstName: payload.firstName,
+            lastName: payload.lastName,
+          },
+        });
+      } catch (error) {
+        // Access token is invalid/expired, check refresh token
+        if (refreshToken) {
+          try {
+            const { accessToken, refreshToken: newRefreshToken } =
+              await this.authService.refreshToken(refreshToken);
+
+            this.authService.setRefreshTokenCookie(res, newRefreshToken);
+
+            return res.json({
+              valid: true,
+              message: 'Token refreshed successfully',
+              accessToken,
+              refreshed: true,
+            });
+          } catch (refreshError) {
+            return res.status(401).json({
+              statusCode: 401,
+              message: 'Both tokens are invalid',
+              action: 'login',
+            });
+          }
+        }
+
+        return res.status(401).json({
+          statusCode: 401,
+          message: 'Access token expired and no refresh token available',
+          action: 'login',
+        });
+      }
+    }
+
+    return res.status(401).json({
+      statusCode: 401,
+      message: 'No access token provided',
+      action: 'login',
+    });
+  }
+
+  @Post('refresh-token')
+  async refreshToken(@Req() req: Request, @Res() res: Response) {
+    const refreshToken = req.cookies['refreshToken'];
+    if (!refreshToken) {
+      return res.status(401).json({
+        statusCode: 401,
+        message: 'No refresh token provided',
+      });
+    }
+
+    try {
+      const { accessToken, refreshToken: newRefreshToken } =
+        await this.authService.refreshToken(refreshToken);
+
+      // Set the new refresh token cookie
+      this.authService.setRefreshTokenCookie(res, newRefreshToken);
+
+      return res.json({
+        accessToken,
+        message: 'Token refreshed successfully',
+      });
+    } catch (error) {
+      // Clear the invalid refresh token cookie
+      res.clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        path: '/api/auth/refresh-token',
+      });
+
+      return res.status(401).json({
+        statusCode: 401,
+        message: 'Invalid refresh token',
+      });
+    }
   }
 
   @UseGuards(JwtAuthGuard)

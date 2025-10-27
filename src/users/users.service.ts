@@ -69,7 +69,7 @@ export class UsersService {
   }
 
   async findById(id: string): Promise<User | null> {
-    return this.userModel.findById(id).exec();
+    return this.userModel.findById(id).select('+refreshToken').exec();
   }
 
   async findAll(user: JwtPayload): Promise<User[]> {

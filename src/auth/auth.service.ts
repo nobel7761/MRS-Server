@@ -18,7 +18,7 @@ export class AuthService {
 
   constructor(
     private readonly usersService: UsersService,
-    private readonly jwtService: JwtService,
+    public readonly jwtService: JwtService,
   ) {}
 
   async register(
@@ -97,27 +97,46 @@ export class AuthService {
   }
 
   async refreshToken(
-    userId: string,
     refreshToken: string,
-  ): Promise<{ accessToken: string }> {
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     try {
       // Verify the refresh token
       const payload = this.jwtService.verify(refreshToken, {
         secret: process.env.JWT_REFRESH_SECRET,
       });
 
-      if (payload.sub !== userId) {
+      const userId = payload.sub;
+      if (!userId) {
         throw new UnauthorizedException('Invalid refresh token');
       }
 
+      // Get user with refresh token to verify it matches
       const user = await this.usersService.findById(userId);
       if (!user) {
         throw new UnauthorizedException('User not found');
       }
 
-      // Generate new access token
-      const accessToken = this.generateAccessToken(user);
-      return { accessToken };
+      // Check if user is active
+      if (user.status !== 'ACTIVE') {
+        throw new UnauthorizedException('User is not active');
+      }
+
+      // Verify the refresh token matches the one stored in database
+      if (user.refreshToken !== refreshToken) {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+
+      // Generate new tokens
+      const newAccessToken = this.generateAccessToken(user);
+      const newRefreshToken = this.generateRefreshToken(user);
+
+      // Update the refresh token in database
+      await this.usersService.updateRefreshToken(user._id, newRefreshToken);
+
+      return {
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken,
+      };
     } catch (error) {
       throw new UnauthorizedException('Invalid refresh token');
     }
@@ -153,7 +172,7 @@ export class AuthService {
 
     const token = this.jwtService.sign(payload, {
       secret: process.env.JWT_ACCESS_SECRET,
-      expiresIn: '15m', // Short-lived access token
+      expiresIn: '1h', // Increased to 1 hour for better user experience
     });
 
     return token;

@@ -15,7 +15,7 @@ import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_ACCESS_SECRET || 'MRS-ACCESS-SECRET-KEY',
-      signOptions: { expiresIn: '15m' },
+      signOptions: { expiresIn: '1h' },
     }),
   ],
   controllers: [AuthController],
