@@ -970,4 +970,262 @@ export class SilverJubileeService {
     );
     return savedParticipant;
   }
+
+  async getStatistics() {
+    try {
+      const allParticipants = await this.participantModel.find().exec();
+
+      // Total counts
+      const totalParticipants = allParticipants.length;
+
+      // Count by participant category
+      const byCategory = {
+        Alumni: allParticipants.filter(
+          (p) => p.participantCategory === 'Alumni',
+        ).length,
+        Student: allParticipants.filter(
+          (p) => p.participantCategory === 'Student',
+        ).length,
+        Guest: allParticipants.filter((p) => p.participantCategory === 'Guest')
+          .length,
+        Baby: allParticipants.filter((p) => p.participantCategory === 'Baby')
+          .length,
+        LifetimeMembership: allParticipants.filter(
+          (p) => p.participantCategory === 'Lifetime Membership',
+        ).length,
+      };
+
+      // Revenue calculations
+      const totalRevenue = allParticipants.reduce(
+        (sum, p) => sum + p.amount,
+        0,
+      );
+      const revenueByCategory = {
+        Alumni: allParticipants
+          .filter((p) => p.participantCategory === 'Alumni')
+          .reduce((sum, p) => sum + p.amount, 0),
+        Student: allParticipants
+          .filter((p) => p.participantCategory === 'Student')
+          .reduce((sum, p) => sum + p.amount, 0),
+        Guest: allParticipants
+          .filter((p) => p.participantCategory === 'Guest')
+          .reduce((sum, p) => sum + p.amount, 0),
+        Baby: allParticipants
+          .filter((p) => p.participantCategory === 'Baby')
+          .reduce((sum, p) => sum + p.amount, 0),
+        LifetimeMembership: allParticipants
+          .filter((p) => p.participantCategory === 'Lifetime Membership')
+          .reduce((sum, p) => sum + p.amount, 0),
+      };
+
+      // Amount type breakdown
+      const byAmountType = {
+        Registration: allParticipants.filter(
+          (p) => p.amountType === 'Registration',
+        ).length,
+        Donation: allParticipants.filter((p) => p.amountType === 'Donation')
+          .length,
+      };
+
+      const revenueByAmountType = {
+        Registration: allParticipants
+          .filter((p) => p.amountType === 'Registration')
+          .reduce((sum, p) => sum + p.amount, 0),
+        Donation: allParticipants
+          .filter((p) => p.amountType === 'Donation')
+          .reduce((sum, p) => sum + p.amount, 0),
+      };
+
+      // Payment method breakdown
+      const byPaymentMethod = {
+        Bkash: allParticipants.filter((p) => p.paymentType === 'Bkash').length,
+        Nagad: allParticipants.filter((p) => p.paymentType === 'Nagad').length,
+        Cash: allParticipants.filter((p) => p.paymentType === 'Cash').length,
+        BankAccount: allParticipants.filter(
+          (p) => p.paymentType === 'Bank Account',
+        ).length,
+      };
+
+      const revenueByPaymentMethod = {
+        Bkash: allParticipants
+          .filter((p) => p.paymentType === 'Bkash')
+          .reduce((sum, p) => sum + p.amount, 0),
+        Nagad: allParticipants
+          .filter((p) => p.paymentType === 'Nagad')
+          .reduce((sum, p) => sum + p.amount, 0),
+        Cash: allParticipants
+          .filter((p) => p.paymentType === 'Cash')
+          .reduce((sum, p) => sum + p.amount, 0),
+        BankAccount: allParticipants
+          .filter((p) => p.paymentType === 'Bank Account')
+          .reduce((sum, p) => sum + p.amount, 0),
+      };
+
+      // Group breakdown (excluding Guests and Babies)
+      const alumniStudents = allParticipants.filter(
+        (p) =>
+          p.participantCategory !== 'Guest' && p.participantCategory !== 'Baby',
+      );
+
+      const byGroup = {
+        Science: alumniStudents.filter((p) => p.group === 'Science').length,
+        BusinessStudies: alumniStudents.filter(
+          (p) => p.group === 'Business Studies',
+        ).length,
+        Humanities: alumniStudents.filter((p) => p.group === 'Humanities')
+          .length,
+      };
+
+      const revenueByGroup = {
+        Science: alumniStudents
+          .filter((p) => p.group === 'Science')
+          .reduce((sum, p) => sum + p.amount, 0),
+        BusinessStudies: alumniStudents
+          .filter((p) => p.group === 'Business Studies')
+          .reduce((sum, p) => sum + p.amount, 0),
+        Humanities: alumniStudents
+          .filter((p) => p.group === 'Humanities')
+          .reduce((sum, p) => sum + p.amount, 0),
+      };
+
+      // Gender breakdown
+      const byGender = {
+        Male: alumniStudents.filter((p) => p.gender === 'Male').length,
+        Female: alumniStudents.filter((p) => p.gender === 'Female').length,
+      };
+
+      // Blood group breakdown
+      const byBloodGroup = {
+        "Don't know": alumniStudents.filter(
+          (p) => p.bloodGroup === "Don't know",
+        ).length,
+        'A+': alumniStudents.filter((p) => p.bloodGroup === 'A+').length,
+        'B+': alumniStudents.filter((p) => p.bloodGroup === 'B+').length,
+        'O+': alumniStudents.filter((p) => p.bloodGroup === 'O+').length,
+        'AB+': alumniStudents.filter((p) => p.bloodGroup === 'AB+').length,
+        'AB-': alumniStudents.filter((p) => p.bloodGroup === 'AB-').length,
+        'A-': alumniStudents.filter((p) => p.bloodGroup === 'A-').length,
+        'B-': alumniStudents.filter((p) => p.bloodGroup === 'B-').length,
+        'O-': alumniStudents.filter((p) => p.bloodGroup === 'O-').length,
+      };
+
+      // Email statistics
+      const emailStats = {
+        totalSent: allParticipants.filter((p) => p.isEmailSent).length,
+        totalNotSent: allParticipants.filter((p) => !p.isEmailSent).length,
+        totalEmailDetails: allParticipants.reduce(
+          (sum, p) => sum + (p.emailSendingDetails?.length || 0),
+          0,
+        ),
+      };
+
+      // Guest and baby statistics
+      const guestBabyStats = {
+        guestsWithMainParticipant: allParticipants.filter(
+          (p) => p.participantCategory === 'Guest' && p.mainParticipantId,
+        ).length,
+        babiesWithMainParticipant: allParticipants.filter(
+          (p) => p.participantCategory === 'Baby' && p.mainParticipantId,
+        ).length,
+      };
+
+      // Registration trends by date
+      const registrationsByDate = {};
+      allParticipants.forEach((p) => {
+        const date = new Date(p.createdAt).toISOString().split('T')[0];
+        registrationsByDate[date] = (registrationsByDate[date] || 0) + 1;
+      });
+
+      // Top batches by participation count
+      const batchCounts: Record<number, number> = {};
+      alumniStudents.forEach((p) => {
+        const batch = p.hscPassingYear;
+        if (batch) {
+          batchCounts[batch] = (batchCounts[batch] || 0) + 1;
+        }
+      });
+
+      const allBatches = Object.entries(batchCounts)
+        .map(([batch, count]: [string, number]) => ({
+          batch: parseInt(batch),
+          count,
+        }))
+        .sort((a, b) => b.count - a.count);
+
+      const topBatches = allBatches.slice(0, 10);
+
+      // Average amount per category
+      const averageAmountByCategory = {
+        Alumni:
+          byCategory.Alumni > 0
+            ? revenueByCategory.Alumni / byCategory.Alumni
+            : 0,
+        Student:
+          byCategory.Student > 0
+            ? revenueByCategory.Student / byCategory.Student
+            : 0,
+        Guest:
+          byCategory.Guest > 0 ? revenueByCategory.Guest / byCategory.Guest : 0,
+        Baby:
+          byCategory.Baby > 0 ? revenueByCategory.Baby / byCategory.Baby : 0,
+        LifetimeMembership:
+          byCategory.LifetimeMembership > 0
+            ? revenueByCategory.LifetimeMembership /
+              byCategory.LifetimeMembership
+            : 0,
+      };
+
+      // Hourly registration distribution
+      const hourlyDistribution = {};
+      for (let i = 0; i < 24; i++) {
+        hourlyDistribution[i] = 0;
+      }
+      allParticipants.forEach((p) => {
+        const hour = new Date(p.createdAt).getHours();
+        hourlyDistribution[hour] = (hourlyDistribution[hour] || 0) + 1;
+      });
+
+      return {
+        overview: {
+          totalParticipants,
+          totalRevenue,
+          averageAmountPerParticipant:
+            totalParticipants > 0 ? totalRevenue / totalParticipants : 0,
+        },
+        byCategory: {
+          counts: byCategory,
+          revenue: revenueByCategory,
+          averages: averageAmountByCategory,
+        },
+        byAmountType: {
+          counts: byAmountType,
+          revenue: revenueByAmountType,
+        },
+        byPaymentMethod: {
+          counts: byPaymentMethod,
+          revenue: revenueByPaymentMethod,
+        },
+        demographics: {
+          byGroup: {
+            counts: byGroup,
+            revenue: revenueByGroup,
+          },
+          byGender: byGender,
+          byBloodGroup: byBloodGroup,
+        },
+        emailStatistics: emailStats,
+        guestBabyStatistics: guestBabyStats,
+        registrationTrends: {
+          byDate: registrationsByDate,
+          hourlyDistribution: hourlyDistribution,
+        },
+        topBatches,
+        allBatches,
+      };
+    } catch (error) {
+      throw new BadRequestException(
+        `Failed to fetch statistics: ${error.message}`,
+      );
+    }
+  }
 }

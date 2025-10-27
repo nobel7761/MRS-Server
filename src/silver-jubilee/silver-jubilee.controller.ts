@@ -51,6 +51,12 @@ export class SilverJubileeController {
     );
   }
 
+  @Get('statistics')
+  @UseGuards(JwtAuthGuard)
+  async getStatistics() {
+    return this.silverJubileeService.getStatistics();
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     console.log('id', id);
