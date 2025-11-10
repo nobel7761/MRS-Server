@@ -33,7 +33,10 @@ export class SilverJubileeService {
     private emailService: EmailService,
   ) {}
 
-  async create(createDto: CreateSilverJubileeParticipantDto, user: JwtPayload) {
+  async create(
+    createDto: CreateSilverJubileeParticipantDto,
+    user?: JwtPayload,
+  ) {
     try {
       // Validate required fields based on participant category
       await this.validateParticipantData(createDto);
@@ -64,7 +67,7 @@ export class SilverJubileeService {
       const participant = new this.participantModel({
         ...createDto,
         secretCode,
-        formFilledUpBy: user._id, // Store the logged-in user's ID as formFilledUpBy
+        formFilledUpBy: user?._id, // Store the logged-in user's ID as formFilledUpBy when available
       });
 
       const savedParticipant = await participant.save();

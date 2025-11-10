@@ -23,6 +23,7 @@ import {
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AuthUser } from '../auth/decorators/auth-user.decorator';
 import { JwtPayload } from '../auth/jwt-payload';
+import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 
 @Controller('silver-jubilee')
 export class SilverJubileeController {
@@ -30,10 +31,10 @@ export class SilverJubileeController {
 
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(OptionalJwtAuthGuard)
   async create(
     @Body() createDto: CreateSilverJubileeParticipantDto,
-    @AuthUser() user: JwtPayload,
+    @AuthUser(true) user?: JwtPayload,
   ) {
     return this.silverJubileeService.create(createDto, user);
   }

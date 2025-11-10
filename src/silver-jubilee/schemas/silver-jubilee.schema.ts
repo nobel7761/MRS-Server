@@ -113,6 +113,9 @@ export class SilverJubileeParticipant {
   @Prop({ trim: true })
   comments?: string;
 
+  @Prop({ trim: true })
+  professionalDetails?: string;
+
   // Email tracking fields
   @Prop({ default: false })
   isEmailSent: boolean;
@@ -145,6 +148,9 @@ export class SilverJubileeParticipant {
 
   @Prop({ trim: true })
   motherOccupation?: string;
+
+  @Prop({ trim: true })
+  submittedFrom?: string;
 
   // Guest Information (only for guests)
   @Prop()

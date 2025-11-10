@@ -101,6 +101,14 @@ export class CreateSilverJubileeParticipantDto {
   @MaxLength(500)
   comments?: string;
 
+  @ValidateIf(
+    (o) => o.professionalDetails !== '' && o.professionalDetails !== null,
+  )
+  @IsString()
+  @IsOptional()
+  @MaxLength(150)
+  professionalDetails?: string;
+
   // Parents Information (optional for guests, required for others)
   @ValidateIf((o) => o.fatherName !== '' && o.fatherName !== null)
   @IsString()
@@ -139,6 +147,12 @@ export class CreateSilverJubileeParticipantDto {
   @IsOptional()
   @MaxLength(100)
   motherOccupation?: string;
+
+  @ValidateIf((o) => o.submittedFrom !== '' && o.submittedFrom !== null)
+  @IsString()
+  @IsOptional()
+  @MaxLength(100)
+  submittedFrom?: string;
 
   // Guest Information (optional, only for guests)
   @ValidateIf(
@@ -271,6 +285,11 @@ export class UpdateSilverJubileeParticipantDto {
 
   @IsString()
   @IsOptional()
+  @MaxLength(150)
+  professionalDetails?: string;
+
+  @IsString()
+  @IsOptional()
   @MaxLength(100)
   fatherName?: string;
 
@@ -300,6 +319,11 @@ export class UpdateSilverJubileeParticipantDto {
   @IsOptional()
   @MaxLength(100)
   motherOccupation?: string;
+
+  @IsString()
+  @IsOptional()
+  @MaxLength(100)
+  submittedFrom?: string;
 
   @IsNumber()
   @IsOptional()
@@ -491,6 +515,7 @@ export class SilverJubileeParticipantResponseDto {
   amountType?: SilverJubileeAmountType;
   amount: number;
   comments?: string;
+  professionalDetails?: string;
   isEmailSent?: boolean;
   emailSendingDetails?: EmailSendingDetailDto[];
   registeredUnder?: string;
@@ -501,6 +526,7 @@ export class SilverJubileeParticipantResponseDto {
   motherName?: string;
   motherPhoneNumber?: string;
   motherOccupation?: string;
+  submittedFrom?: string;
   mainParticipantBatch?: number;
   mainParticipantGroup?: SilverJubileeGroup;
   mainParticipantId?: string;
