@@ -12,6 +12,7 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { SilverJubileeService } from './silver-jubilee.service';
@@ -19,6 +20,7 @@ import {
   CreateSilverJubileeParticipantDto,
   UpdateSilverJubileeParticipantDto,
   BatchGroupQueryDto,
+  UpdatePaymentStatusDto,
 } from './dto/silver-jubilee.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AuthUser } from '../auth/decorators/auth-user.decorator';
@@ -95,5 +97,18 @@ export class SilverJubileeController {
     @AuthUser() user: JwtPayload,
   ) {
     return this.silverJubileeService.uploadCsvAndCreateParticipants(file, user);
+  }
+
+  @Patch(':id/update-payment-status')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  async updatePaymentStatus(
+    @Param('id') id: string,
+    @Body() updatePaymentStatusDto: UpdatePaymentStatusDto,
+  ) {
+    return this.silverJubileeService.updatePaymentStatus(
+      id,
+      updatePaymentStatusDto.status,
+    );
   }
 }

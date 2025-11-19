@@ -364,6 +364,31 @@ export class SilverJubileeService {
     }
   }
 
+  async updatePaymentStatus(id: string, status: 'Paid' | 'Not Paid') {
+    try {
+      const participant = await this.participantModel.findById(id);
+
+      if (!participant) {
+        throw new NotFoundException(`Participant with ID ${id} not found`);
+      }
+
+      participant.submittedFrom = status;
+      const updatedParticipant = await participant.save();
+
+      return {
+        message: `Payment status updated to ${status} successfully`,
+        participant: updatedParticipant,
+      };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new BadRequestException(
+        `Failed to update payment status: ${error.message}`,
+      );
+    }
+  }
+
   async remove(id: string) {
     try {
       const deletedParticipant = await this.participantModel

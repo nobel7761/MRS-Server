@@ -14,6 +14,7 @@ import {
   IsArray,
   IsDate,
   ValidateNested,
+  IsIn,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import {
@@ -567,4 +568,14 @@ export class BatchGroupResponseDto {
   group: string;
   total: number;
   participants: any[];
+}
+
+// Update Payment Status DTO
+export class UpdatePaymentStatusDto {
+  @IsString()
+  @IsNotEmpty()
+  @IsIn(['Paid', 'Not Paid'], {
+    message: "Status must be either 'Paid' or 'Not Paid'",
+  })
+  status: 'Paid' | 'Not Paid';
 }
