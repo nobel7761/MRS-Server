@@ -44,7 +44,7 @@ export class CreateSilverJubileeParticipantDto {
   @IsString()
   @IsOptional()
   @MinLength(10)
-  @MaxLength(15)
+  @MaxLength(20)
   phoneNumber?: string;
 
   @ValidateIf(
@@ -53,7 +53,7 @@ export class CreateSilverJubileeParticipantDto {
   @IsString()
   @IsOptional()
   @MinLength(10)
-  @MaxLength(15)
+  @MaxLength(20)
   alternativePhoneNumber?: string;
 
   @ValidateIf((o) => o.email !== '' && o.email !== null)
@@ -62,6 +62,7 @@ export class CreateSilverJubileeParticipantDto {
   email?: string;
 
   @ValidateIf((o) => o.hscPassingYear !== '' && o.hscPassingYear !== null)
+  @Type(() => Number)
   @IsNumber()
   @IsOptional()
   @Min(1990)
@@ -91,6 +92,7 @@ export class CreateSilverJubileeParticipantDto {
   @IsOptional()
   amountType?: SilverJubileeAmountType;
 
+  @Type(() => Number)
   @IsNumber()
   @IsNotEmpty()
   @Min(0)
@@ -121,7 +123,7 @@ export class CreateSilverJubileeParticipantDto {
   @IsString()
   @IsOptional()
   @MinLength(10)
-  @MaxLength(15)
+  @MaxLength(20)
   fatherPhoneNumber?: string;
 
   @ValidateIf((o) => o.fatherOccupation !== '' && o.fatherOccupation !== null)
@@ -140,7 +142,7 @@ export class CreateSilverJubileeParticipantDto {
   @IsString()
   @IsOptional()
   @MinLength(10)
-  @MaxLength(15)
+  @MaxLength(20)
   motherPhoneNumber?: string;
 
   @ValidateIf((o) => o.motherOccupation !== '' && o.motherOccupation !== null)
@@ -159,6 +161,7 @@ export class CreateSilverJubileeParticipantDto {
   @ValidateIf(
     (o) => o.mainParticipantBatch !== '' && o.mainParticipantBatch !== null,
   )
+  @Type(() => Number)
   @IsNumber()
   @IsOptional()
   mainParticipantBatch?: number;
@@ -193,7 +196,7 @@ export class CreateSilverJubileeParticipantDto {
   @IsString()
   @IsOptional()
   @MinLength(10)
-  @MaxLength(15)
+  @MaxLength(20)
   guestMobileNumber?: string;
 
   // Baby Information (optional, only for babies)
@@ -207,7 +210,7 @@ export class CreateSilverJubileeParticipantDto {
   @IsString()
   @IsOptional()
   @MinLength(10)
-  @MaxLength(15)
+  @MaxLength(20)
   babyPhone?: string;
 
   // New fields for tracking registration details
@@ -236,19 +239,20 @@ export class UpdateSilverJubileeParticipantDto {
   @IsString()
   @IsOptional()
   @MinLength(10)
-  @MaxLength(15)
+  @MaxLength(20)
   phoneNumber?: string;
 
   @IsString()
   @IsOptional()
   @MinLength(10)
-  @MaxLength(15)
+  @MaxLength(20)
   alternativePhoneNumber?: string;
 
   @IsEmail()
   @IsOptional()
   email?: string;
 
+  @Type(() => Number)
   @IsNumber()
   @IsOptional()
   @Min(1990)
@@ -274,6 +278,7 @@ export class UpdateSilverJubileeParticipantDto {
   @IsOptional()
   amountType?: SilverJubileeAmountType;
 
+  @Type(() => Number)
   @IsNumber()
   @IsOptional()
   @Min(0)
@@ -297,7 +302,7 @@ export class UpdateSilverJubileeParticipantDto {
   @IsString()
   @IsOptional()
   @MinLength(10)
-  @MaxLength(15)
+  @MaxLength(20)
   fatherPhoneNumber?: string;
 
   @IsString()
@@ -313,7 +318,7 @@ export class UpdateSilverJubileeParticipantDto {
   @IsString()
   @IsOptional()
   @MinLength(10)
-  @MaxLength(15)
+  @MaxLength(20)
   motherPhoneNumber?: string;
 
   @IsString()
@@ -326,6 +331,7 @@ export class UpdateSilverJubileeParticipantDto {
   @MaxLength(100)
   submittedFrom?: string;
 
+  @Type(() => Number)
   @IsNumber()
   @IsOptional()
   mainParticipantBatch?: number;
@@ -351,7 +357,7 @@ export class UpdateSilverJubileeParticipantDto {
   @IsString()
   @IsOptional()
   @MinLength(10)
-  @MaxLength(15)
+  @MaxLength(20)
   guestMobileNumber?: string;
 
   // New fields for tracking registration details

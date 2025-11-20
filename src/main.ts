@@ -65,7 +65,15 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
   });
 
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+    }),
+  );
   app.setGlobalPrefix('api');
 
   await app.listen(process.env.PORT || 3333);
