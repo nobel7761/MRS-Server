@@ -12,6 +12,7 @@ import { FaqsCategoryModule } from './faqs-category/faqs-category.module';
 import { FaqsModule } from './faqs/faqs.module';
 import { EventModule } from './event/event.module';
 import { SilverJubileeModule } from './silver-jubilee/silver-jubilee.module';
+import { SouvenirManagementModule } from './souvenir-management/souvenir-management.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { SilverJubileeModule } from './silver-jubilee/silver-jubilee.module';
     FaqsModule,
     EventModule,
     SilverJubileeModule,
+    SouvenirManagementModule,
   ],
   controllers: [AppController],
   providers: [AppService],
