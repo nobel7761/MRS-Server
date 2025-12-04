@@ -27,11 +27,17 @@ export class Souvenir {
   @Prop({ required: true, trim: true, lowercase: true })
   email: string;
 
-  @Prop({ required: true })
-  photoUrl: string; // Cloudinary URL
+  @Prop()
+  photoUrl?: string; // Cloudinary URL (for non-photo-gallery categories)
 
-  @Prop({ required: true, type: String })
-  content: string; // HTML content from rich text editor
+  @Prop({ type: [String], default: [] })
+  photoUrls?: string[]; // Array of Cloudinary URLs (for photo-gallery category)
+
+  @Prop({ type: String })
+  content?: string; // HTML content from rich text editor (optional for photo-gallery)
+
+  @Prop({ trim: true })
+  professionalDetails?: string;
 }
 
 export const SouvenirSchema = SchemaFactory.createForClass(Souvenir);

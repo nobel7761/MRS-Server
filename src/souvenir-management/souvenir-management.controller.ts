@@ -11,9 +11,10 @@ import {
   HttpStatus,
   UseInterceptors,
   UploadedFile,
+  UploadedFiles,
   BadRequestException,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { SouvenirManagementService } from './souvenir-management.service';
 import { CreateSouvenirDto } from './dto/create-souvenir.dto';
 import { UpdateSouvenirDto } from './dto/update-souvenir.dto';
@@ -22,6 +23,9 @@ import {
   SouvenirResponseDto,
   SouvenirListResponseDto,
 } from './dto/souvenir-response.dto';
+import { multerMultipleConfig } from './config/multer-multiple.config';
+import { UnifiedFileUploadInterceptor } from './interceptors/unified-file-upload.interceptor';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { multerConfig } from './config/multer.config';
 import { FileUploadInterceptor } from './interceptors/file-upload.interceptor';
 
@@ -34,17 +38,13 @@ export class SouvenirManagementController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UseInterceptors(
-    FileInterceptor('photo', multerConfig),
-    FileUploadInterceptor,
+    AnyFilesInterceptor(multerMultipleConfig),
+    UnifiedFileUploadInterceptor,
   )
   async create(
     @Body() createDto: CreateSouvenirDto,
   ): Promise<SouvenirResponseDto> {
-    // Validate that photoUrl was set by interceptor
-    if (!createDto.photoUrl) {
-      throw new BadRequestException('Photo upload is required');
-    }
-
+    // Validation is handled in the service
     return this.souvenirManagementService.create(createDto);
   }
 

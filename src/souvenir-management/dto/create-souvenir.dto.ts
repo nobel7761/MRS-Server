@@ -5,6 +5,10 @@ import {
   MaxLength,
   MinLength,
   IsOptional,
+  ValidateIf,
+  IsArray,
+  ArrayMaxSize,
+  ArrayMinSize,
 } from 'class-validator';
 
 export class CreateSouvenirDto {
@@ -40,9 +44,29 @@ export class CreateSouvenirDto {
 
   @IsString()
   @IsOptional()
-  photoUrl?: string; // Will be set by interceptor from Cloudinary
+  photoUrl?: string; // Will be set by interceptor from Cloudinary (for non-photo-gallery)
 
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  @ArrayMinSize(1, {
+    message: 'At least 1 photo is required for photo-gallery',
+  })
+  @ArrayMaxSize(10, { message: 'Maximum 10 photos allowed for photo-gallery' })
+  photoUrls?: string[]; // Will be set by interceptor from Cloudinary (for photo-gallery)
+
+  @ValidateIf((o) => o.category !== 'photo-gallery')
   @IsString()
-  @IsNotEmpty()
-  content: string; // HTML content from rich text editor
+  @IsNotEmpty({
+    message: 'Content is required for non-photo-gallery categories',
+  })
+  content?: string; // HTML content from rich text editor (required for non-photo-gallery, optional for photo-gallery)
+
+  @ValidateIf(
+    (o) => o.professionalDetails !== '' && o.professionalDetails !== null,
+  )
+  @IsString()
+  @IsOptional()
+  @MaxLength(150)
+  professionalDetails?: string;
 }

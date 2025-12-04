@@ -23,10 +23,52 @@ export class SouvenirManagementService {
 
   async create(createDto: CreateSouvenirDto): Promise<SouvenirResponseDto> {
     try {
+      // Validate based on category
+      if (createDto.category === 'photo-gallery') {
+        // For photo-gallery: require photoUrls, content is optional
+        if (!createDto.photoUrls || createDto.photoUrls.length === 0) {
+          throw new BadRequestException(
+            'At least 1 photo is required for photo-gallery category',
+          );
+        }
+        if (createDto.photoUrls.length > 10) {
+          throw new BadRequestException(
+            'Maximum 10 photos allowed for photo-gallery category',
+          );
+        }
+        // Ensure photoUrl is not set for photo-gallery
+        if (createDto.photoUrl) {
+          throw new BadRequestException(
+            'photoUrl should not be set for photo-gallery category. Use photoUrls instead.',
+          );
+        }
+      } else {
+        // For other categories: require photoUrl and content
+        if (!createDto.photoUrl) {
+          throw new BadRequestException(
+            'Photo upload is required for non-photo-gallery categories',
+          );
+        }
+        if (!createDto.content) {
+          throw new BadRequestException(
+            'Content is required for non-photo-gallery categories',
+          );
+        }
+        // Ensure photoUrls is not set for non-photo-gallery
+        if (createDto.photoUrls && createDto.photoUrls.length > 0) {
+          throw new BadRequestException(
+            'photoUrls should not be set for non-photo-gallery categories. Use photoUrl instead.',
+          );
+        }
+      }
+
       const souvenir = new this.souvenirModel(createDto);
       const savedSouvenir = await souvenir.save();
       return this.mapToResponseDto(savedSouvenir);
     } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
       throw new BadRequestException(
         `Failed to create souvenir: ${error.message}`,
       );
@@ -170,7 +212,7 @@ export class SouvenirManagementService {
   }
 
   private mapToResponseDto(souvenir: SouvenirDocument): SouvenirResponseDto {
-    return {
+    const response: SouvenirResponseDto = {
       _id: souvenir._id.toString(),
       category: souvenir.category,
       name: souvenir.name,
@@ -178,10 +220,23 @@ export class SouvenirManagementService {
       group: souvenir.group,
       phoneNumber: souvenir.phoneNumber,
       email: souvenir.email,
-      photoUrl: souvenir.photoUrl,
-      content: souvenir.content,
+      professionalDetails: souvenir.professionalDetails,
       createdAt: souvenir.createdAt,
       updatedAt: souvenir.updatedAt,
     };
+
+    // Set photoUrl or photoUrls based on category
+    if (souvenir.category === 'photo-gallery') {
+      response.photoUrls = souvenir.photoUrls || [];
+    } else {
+      response.photoUrl = souvenir.photoUrl;
+    }
+
+    // Content is optional for photo-gallery
+    if (souvenir.content) {
+      response.content = souvenir.content;
+    }
+
+    return response;
   }
 }
