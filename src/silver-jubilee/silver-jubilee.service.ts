@@ -1213,6 +1213,56 @@ export class SilverJubileeService {
         hourlyDistribution[hour] = (hourlyDistribution[hour] || 0) + 1;
       });
 
+      // Payment status statistics
+      // Not paid: only those explicitly marked as 'Not Paid'
+      const notPaidParticipants = allParticipants.filter(
+        (p) => p.submittedFrom === 'Not Paid',
+      );
+      // Paid: all others (including null, undefined, 'Paid', or any other value)
+      const paidParticipants = allParticipants.filter(
+        (p) => p.submittedFrom !== 'Not Paid',
+      );
+
+      // Paid participants total count
+      const paidParticipantsTotalCount = paidParticipants.length;
+
+      // Not paid participants total count
+      const notPaidParticipantsTotalCount = notPaidParticipants.length;
+
+      // Paid participants by category
+      const paidAlumni = paidParticipants.filter(
+        (p) => p.participantCategory === 'Alumni',
+      );
+      const paidStudent = paidParticipants.filter(
+        (p) => p.participantCategory === 'Student',
+      );
+      const paidLifetimeMembership = paidParticipants.filter(
+        (p) => p.participantCategory === 'Lifetime Membership',
+      );
+      const paidGuest = paidParticipants.filter(
+        (p) => p.participantCategory === 'Guest',
+      );
+      const paidBaby = paidParticipants.filter(
+        (p) => p.participantCategory === 'Baby',
+      );
+
+      // Not paid participants by category
+      const notPaidAlumni = notPaidParticipants.filter(
+        (p) => p.participantCategory === 'Alumni',
+      );
+      const notPaidStudent = notPaidParticipants.filter(
+        (p) => p.participantCategory === 'Student',
+      );
+      const notPaidLifetimeMembership = notPaidParticipants.filter(
+        (p) => p.participantCategory === 'Lifetime Membership',
+      );
+      const notPaidGuest = notPaidParticipants.filter(
+        (p) => p.participantCategory === 'Guest',
+      );
+      const notPaidBaby = notPaidParticipants.filter(
+        (p) => p.participantCategory === 'Baby',
+      );
+
       return {
         overview: {
           totalParticipants,
@@ -1249,6 +1299,56 @@ export class SilverJubileeService {
         },
         topBatches,
         allBatches,
+        paymentStatus: {
+          paidParticipantsTotalCount: paidParticipantsTotalCount,
+          notPaidParticipantsTotalCount: notPaidParticipantsTotalCount,
+          paidAlumni: {
+            count: paidAlumni.length,
+            amount: paidAlumni.reduce((sum, p) => sum + p.amount, 0),
+          },
+          notPaidAlumni: {
+            count: notPaidAlumni.length,
+            amount: notPaidAlumni.reduce((sum, p) => sum + p.amount, 0),
+          },
+          paidStudent: {
+            count: paidStudent.length,
+            amount: paidStudent.reduce((sum, p) => sum + p.amount, 0),
+          },
+          notPaidStudent: {
+            count: notPaidStudent.length,
+            amount: notPaidStudent.reduce((sum, p) => sum + p.amount, 0),
+          },
+          paidLifetimeMembership: {
+            count: paidLifetimeMembership.length,
+            amount: paidLifetimeMembership.reduce(
+              (sum, p) => sum + p.amount,
+              0,
+            ),
+          },
+          notPaidLifetimeMembership: {
+            count: notPaidLifetimeMembership.length,
+            amount: notPaidLifetimeMembership.reduce(
+              (sum, p) => sum + p.amount,
+              0,
+            ),
+          },
+          paidGuest: {
+            count: paidGuest.length,
+            amount: paidGuest.reduce((sum, p) => sum + p.amount, 0),
+          },
+          notPaidGuest: {
+            count: notPaidGuest.length,
+            amount: notPaidGuest.reduce((sum, p) => sum + p.amount, 0),
+          },
+          paidBaby: {
+            count: paidBaby.length,
+            amount: paidBaby.reduce((sum, p) => sum + p.amount, 0),
+          },
+          notPaidBaby: {
+            count: notPaidBaby.length,
+            amount: notPaidBaby.reduce((sum, p) => sum + p.amount, 0),
+          },
+        },
       };
     } catch (error) {
       throw new BadRequestException(
