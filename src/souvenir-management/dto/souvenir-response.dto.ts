@@ -17,7 +17,4 @@ export class SouvenirResponseDto {
 export class SouvenirListResponseDto {
   souvenirs: SouvenirResponseDto[];
   total: number;
-  page?: number;
-  limit?: number;
-  totalPages?: number;
 }

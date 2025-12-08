@@ -82,8 +82,6 @@ export class SouvenirManagementService {
         batch,
         group,
         search,
-        page = 1,
-        limit = 10,
         sortBy = 'createdAt',
         sortOrder = 'desc',
       } = queryDto;
@@ -110,32 +108,19 @@ export class SouvenirManagementService {
         ];
       }
 
-      // Calculate pagination
-      const skip = (page - 1) * limit;
-
       // Build sort object
       const sort: any = {};
       sort[sortBy] = sortOrder === 'asc' ? 1 : -1;
 
-      // Execute query
+      // Execute query - fetch all data without pagination
       const [souvenirs, total] = await Promise.all([
-        this.souvenirModel
-          .find(filter)
-          .sort(sort)
-          .skip(skip)
-          .limit(limit)
-          .exec(),
+        this.souvenirModel.find(filter).sort(sort).exec(),
         this.souvenirModel.countDocuments(filter).exec(),
       ]);
-
-      const totalPages = Math.ceil(total / limit);
 
       return {
         souvenirs: souvenirs.map((souvenir) => this.mapToResponseDto(souvenir)),
         total,
-        page,
-        limit,
-        totalPages,
       };
     } catch (error) {
       throw new BadRequestException(
