@@ -34,6 +34,7 @@ export enum SilverJubileeParticipantCategory {
   GUEST = 'Guest',
   BABY = 'Baby',
   LIFETIMEMEMBERSHIP = 'Lifetime Membership',
+  DONATION = 'Donation',
 }
 
 export enum SilverJubileeAmountType {

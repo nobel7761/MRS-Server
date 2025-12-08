@@ -1021,6 +1021,9 @@ export class SilverJubileeService {
         LifetimeMembership: allParticipants.filter(
           (p) => p.participantCategory === 'Lifetime Membership',
         ).length,
+        Donation: allParticipants.filter(
+          (p) => p.participantCategory === 'Donation',
+        ).length,
       };
 
       // Revenue calculations
@@ -1043,6 +1046,9 @@ export class SilverJubileeService {
           .reduce((sum, p) => sum + p.amount, 0),
         LifetimeMembership: allParticipants
           .filter((p) => p.participantCategory === 'Lifetime Membership')
+          .reduce((sum, p) => sum + p.amount, 0),
+        Donation: allParticipants
+          .filter((p) => p.participantCategory === 'Donation')
           .reduce((sum, p) => sum + p.amount, 0),
       };
 
@@ -1201,6 +1207,10 @@ export class SilverJubileeService {
             ? revenueByCategory.LifetimeMembership /
               byCategory.LifetimeMembership
             : 0,
+        Donation:
+          byCategory.Donation > 0
+            ? revenueByCategory.Donation / byCategory.Donation
+            : 0,
       };
 
       // Hourly registration distribution
@@ -1245,6 +1255,9 @@ export class SilverJubileeService {
       const paidBaby = paidParticipants.filter(
         (p) => p.participantCategory === 'Baby',
       );
+      const paidDonation = paidParticipants.filter(
+        (p) => p.participantCategory === 'Donation',
+      );
 
       // Not paid participants by category
       const notPaidAlumni = notPaidParticipants.filter(
@@ -1261,6 +1274,9 @@ export class SilverJubileeService {
       );
       const notPaidBaby = notPaidParticipants.filter(
         (p) => p.participantCategory === 'Baby',
+      );
+      const notPaidDonation = notPaidParticipants.filter(
+        (p) => p.participantCategory === 'Donation',
       );
 
       return {
@@ -1347,6 +1363,14 @@ export class SilverJubileeService {
           notPaidBaby: {
             count: notPaidBaby.length,
             amount: notPaidBaby.reduce((sum, p) => sum + p.amount, 0),
+          },
+          paidDonation: {
+            count: paidDonation.length,
+            amount: paidDonation.reduce((sum, p) => sum + p.amount, 0),
+          },
+          notPaidDonation: {
+            count: notPaidDonation.length,
+            amount: notPaidDonation.reduce((sum, p) => sum + p.amount, 0),
           },
         },
       };
